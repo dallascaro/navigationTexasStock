@@ -9,7 +9,35 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native-gesture-handler';
 
+import { db, writeUserData } from "../firebase";
+import { collection, getDocs, addDoc } from "firebase/firestore/lite";
+
 const Events = () => {
+
+  const[userComment, setComment] = React.useState("Comment");
+
+  const PullData = async () => {
+    const ordersCol = collection(db, 'Users Comments')
+    const ordersSnapshot = await getDocs(ordersCol)
+    const orderList = ordersSnapshot.docs.map(doc => doc.data());
+
+    console.log(orderList)
+  }
+
+  const PostData = async () => { 
+    // Add a new document with a generated id.
+  const docRef = await addDoc(collection(db, "Users Comments"), {
+  username: "newemail",
+  comment: userComment
+});
+const ordersCol = collection(db, 'Users Comments')
+    const ordersSnapshot = await getDocs(ordersCol)
+    const orderList = ordersSnapshot.docs.map(doc => doc.data());
+
+    console.log(orderList)
+console.log("Document written with ID: ", docRef.id);
+
+  }
 
     const [state, setState] = useState([
   
@@ -111,9 +139,20 @@ const Events = () => {
                 <Text style = {styles.eventText}>Cars and Coffee</Text>
                 <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
                 <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
+
+                <TextInput
+                onChangeText = {setComment}
+                >Enter Comment
+                </TextInput>
+
+                <Button
+                    title="Comment!"
+                    color='#D8232F'
+                    onPress={PostData}
+                  />
   
                 <View style = {styles.eventButton}>
-                  
+
                   <Button
                     title="Going to Event!"
                     color='#D8232F'

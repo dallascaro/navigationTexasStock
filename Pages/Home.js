@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
    marginBottom: 50
   },
   signUpButtonView: {
-  paddingRight: 20
+  paddingRight: 20,
   },
   forgotPassButtonView : {
      
