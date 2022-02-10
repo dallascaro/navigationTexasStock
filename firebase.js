@@ -44,3 +44,4 @@ function writeUserData(email, name ) {
 
 export {auth, db, writeUserData};
 export default getFirestore();
+//Test comment from Jeremy
