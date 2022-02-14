@@ -5,7 +5,9 @@ import Events from "../Pages/Events";
 import Profile from "../Pages/Profile";
 import Services from "../Pages/Services";
 import Settings from "../Pages/Settings";
+import CreateEvent from "../Pages/CreateEvent";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -42,14 +44,15 @@ const EventsStackNavigator = () => {
   const ServicesStackNavigator = () => {
     return (
       <Stack.Navigator screenOptions={screenOptionStyle}>
-        <Stack.Screen name="Services" component={Services} />
+        <Stack.Screen name="Services" component={Services}  options={{headerShown: false}} />
+        <Stack.Screen name = "CreateEvent" component={CreateEvent} options = {{headerShown: false}} />
       </Stack.Navigator>
     );
   };
   const SettingsStackNavigator = () => {
     return (
       <Stack.Navigator screenOptions={screenOptionStyle}>
-        <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="Settings" component={Settings}  options={{headerShown: false}} />
       </Stack.Navigator>
     );
   };
@@ -57,9 +60,17 @@ const EventsStackNavigator = () => {
 const TabNavigator = () => {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="EventsT" component={EventsStackNavigator} options={{headerShown: false}}/>
-      <Tab.Screen name="Profile" component={ProfileStackNavigator} options={{headerShown: false}}/>
-      <Tab.Screen name="Services" component={ServicesStackNavigator } />
+      <Tab.Screen name="EventsT" 
+      component={EventsStackNavigator} 
+      options={{headerShown: false}}
+      />
+      <Tab.Screen name="Profile" 
+      component={ProfileStackNavigator} 
+      options={{headerShown: false}}
+      />
+      <Tab.Screen name="Services" 
+      component={ServicesStackNavigator } 
+      />
     </Tab.Navigator>
   );
 };

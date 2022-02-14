@@ -10,7 +10,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
 
-const Services = () => {
+const Services = ({navigation}) => {
     return(
       <PagerView style={styles.pagerView} initialPage={0}>
       <View key="1">
@@ -110,6 +110,12 @@ const Services = () => {
       <View key="3">
         <Text>My Events</Text>
         <Text>This is the content for the second page</Text>
+        <Button
+                    title="Create Event!"
+                    color='#17E217'
+                    onPress={() => navigation.navigate("CreateEvent")}
+                    
+                  />
         <ScrollView style = {styles.eventDetails}>
           <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
           <View style = {styles.eventInfo}>

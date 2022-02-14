@@ -217,6 +217,17 @@ console.log("Document written with ID: ", docRef.id);
                 <Text style = {styles.eventText}>Cars and Coffee</Text>
                 <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
                 <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
+
+                <TextInput
+                onChangeText = {setComment}
+                >Enter Comment
+                </TextInput>
+
+                <Button
+                    title="Comment!"
+                    color='#D8232F'
+                    onPress={PostData}
+                  />
                 <View style = {styles.eventButton}>
                 <Button
                     title="Going to Event!"
@@ -282,6 +293,17 @@ console.log("Document written with ID: ", docRef.id);
                 <Text style = {styles.eventText}>Cars and Coffee</Text>
                 <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
                 <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
+
+                <TextInput
+                onChangeText = {setComment}
+                >Enter Comment
+                </TextInput>
+
+                <Button
+                    title="Comment!"
+                    color='#D8232F'
+                    onPress={PostData}
+                  />
                 <View style = {styles.eventButton}>
                 <Button style = {styles.choicesButton}
                     title="Going to Event!"
