@@ -8,54 +8,68 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import ScrollPicker from 'react-native-wheel-scrollview-picker';
 //import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native-gesture-handler';
+import { db, writeUserData } from "../firebase";
+import { collection, getDocs, addDoc } from "firebase/firestore/lite";
 
 const CreateEvent = ({navigation}) => {
+
     return(
       <View  style = {styles.container}  >
 
         <View style = {styles.headComment}>
           <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
-          <Text style = {styles.comment}>Comment</Text>
+          <Text style = {styles.comment}>Create Event</Text>
         </View>
 
         <View>
         <Image style = {styles.carPics} source = {require('../assets/Cars/FordMustang.jpg')}/>
         </View>
 
-        <View>
-          <Text>Date / Time</Text>
-          <View style = {styles.eventInfo}>
-          <TextInput>Date</TextInput>
-          <TextInput>Time</TextInput>
-          </View>
-          
-          <Text>City / State</Text>
-          <View style = {styles.eventInfo}>
-          <TextInput>City</TextInput>
-          <TextInput>State</TextInput>
-          </View>
-         
-          <Text>Title / Desc</Text>
-          <View style = {styles.eventInfo}>
-         <TextInput>Title</TextInput>
-          <TextInput>Desc</TextInput>
-         </View>
-         
+
+      <View style = {styles.commentSection}>
+
+        <View style = {styles.eventData}>
+          <Text style = {styles.eventText}>Date / Time</Text>
+            <View style = {styles.eventInput}>
+            <TextInput style = {styles.eventTextInput} >Date</TextInput>
+            <TextInput style = {styles.eventTextInput} >Time</TextInput>
+            </View>
         </View>
-        
+
+        <View style = {styles.eventData}>
+          <Text style = {styles.eventText}>City / State</Text>
+            <View style = {styles.eventInput}>
+            <TextInput style = {styles.eventTextInput} >City</TextInput>
+            <TextInput style = {styles.eventTextInput}>State</TextInput>
+            </View>
+        </View>  
+          
+        <View style = {styles.eventData}>
+        <Text style = {styles.eventText}>Title / Desc</Text>
+          <View style = {styles.eventInput}>
+            <TextInput style = {styles.eventTextInput}>Title</TextInput>
+            <TextInput style = {styles.eventTextInput}>Desc</TextInput>
+         </View>
+        </View>
+
         <View style = {styles.eventButton}>
         <Button
           title="Post"
           color='#17E217'
           onPress={() => Alert.alert('Posted Comment!')} 
           />
+          <View style = {styles.eventButton}>
           <Button
             title="Cancel"
             color='#D8232F'
             onPress={() => Alert.alert('Cancled Comment!')}
             />
+          </View>
+         
         </View>
-        
+         
+        </View>
+      
       </View>
     );
     
@@ -71,16 +85,18 @@ const CreateEvent = ({navigation}) => {
     },
     headComment: {
       flexDirection: 'row',
-      marginRight: 250
+      marginRight: 250,
+      backgroundColor: '#C4C4C4'
     },
     comment: {
       paddingTop: 50,
-      paddingLeft: 5,
       fontWeight: 'bold',
       fontSize: 18
     },
-    eventInfo: {
-      flexDirection: 'row'
+    commentSection: {
+      flex: 1,
+      width: 400,
+      backgroundColor: '#C4C4C4'
     },
     headBanner: {
       flex: 1,
@@ -97,6 +113,29 @@ const CreateEvent = ({navigation}) => {
       width: 400,
       backgroundColor: '#C4C4C4',
       flexDirection: 'row'
+    },
+    eventData: {
+      flexDirection: 'row',
+      marginLeft: 50,
+      marginTop: 20,
+      marginBottom: 20
+    },
+    evenDescription: {
+      marginRight: 75
+    },
+    eventInput: {
+      flexDirection: 'row',
+      paddingLeft: 10,
+
+    },
+    eventText: {
+      marginLeft: 10
+    },
+    eventTextInput: {
+      paddingRight: 40,
+      backgroundColor: '#EFEEEE',
+      height: 50,
+      width: 100
     },
     companyName: {
       color: 'white',
@@ -188,7 +227,7 @@ const CreateEvent = ({navigation}) => {
     eventButton: {
       flex: .5,
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      marginLeft: 100,
     },
     choicesButton : {
       

@@ -8,30 +8,22 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import ScrollPicker from 'react-native-wheel-scrollview-picker';
 //import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native-gesture-handler';
+import PagerView from 'react-native-pager-view';
 
-const Profile = () => {
+const Profile = ({navigation}) => {
     return(
-      <View  style = {styles.container}  >
-  
-      <View style = {styles.profileCarView} >
+      <PagerView style={styles.pagerView} initialPage={0}>
+      <View key="1">
+
+        <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
-      </View>
-  
-      <View style = {styles.profilePictureView} >
-        <View style = {styles.profileNamePictureView}>
-            <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
             <Text>User Name</Text>
+            <Text>Attending</Text>
+          <Text>This is the content for the first page</Text>
         </View>
-        <View style = {styles.profileOptionsView}>
-            <Text style = {styles.profileSelection}>Attending</Text>
-            <Text style = {styles.profileSelection}>Interested</Text>
-            <Text style = {styles.profileSelection}>My Events</Text>
-          </View>
-      </View>       
-  
-  
-        <View style = {styles.eventFeed}>
-          <ScrollView style = {styles.eventDetails}>
+        
+        <ScrollView style = {styles.eventDetails}>
           <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
           <View style = {styles.eventInfo}>
                 <Text style = {styles.eventText}>Cars and Coffee</Text>
@@ -73,8 +65,120 @@ const Profile = () => {
                 </View>
               </View>
           </ScrollView>
-        </View>
       </View>
+
+      <View key="2">
+      <View style = {styles.headerView}>
+        <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
+        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+            <Text>User Name</Text>
+            <Text>Interested</Text>
+        <Text>This is the content for the second page</Text>
+        </View>
+       
+        <ScrollView style = {styles.eventDetails}>
+          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
+          <View style = {styles.eventInfo}>
+                <Text style = {styles.eventText}>Cars and Coffee</Text>
+                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
+                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
+  
+                <View style = {styles.eventButton}>
+                  
+                  <Button
+                    title="Going to Event!"
+                    color='#D8232F'
+                    onPress={() => Alert.alert('Going!')}
+                  />
+                  <Button
+                    title="Interested!"
+                    color='#FFFF00'
+                    onPress={() => Alert.alert('Interested!')}
+                  />
+                </View>
+              </View>
+              <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
+          <View style = {styles.eventInfo}>
+                <Text style = {styles.eventText}>Cars and Coffee</Text>
+                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
+                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
+  
+                <View style = {styles.eventButton}>
+                  
+                  <Button
+                    title="Going to Event!"
+                    color='#D8232F'
+                    onPress={() => Alert.alert('Going!')}
+                  />
+                  <Button
+                    title="Interested!"
+                    color='#FFFF00'
+                    onPress={() => Alert.alert('Interested!')}
+                  />
+                </View>
+              </View>
+          </ScrollView>
+      </View>
+
+      <View key="3">
+      <View style = {styles.headerView}>
+        <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
+        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+            <Text>User Name</Text>
+            <Text>My Events</Text>
+        <Text>This is the content for the second page</Text>
+        </View>
+       
+        <Button
+                    title="Create Event!"
+                    color='#17E217'
+                    onPress={() => navigation.navigate("CreateEvent")}
+                    
+                  />
+        <ScrollView style = {styles.eventDetails}>
+          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
+          <View style = {styles.eventInfo}>
+                <Text style = {styles.eventText}>Cars and Coffee</Text>
+                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
+                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
+  
+                <View style = {styles.eventButton}>
+                  
+                  <Button
+                    title="Going to Event!"
+                    color='#D8232F'
+                    onPress={() => Alert.alert('Going!')}
+                  />
+                  <Button
+                    title="Interested!"
+                    color='#FFFF00'
+                    onPress={() => Alert.alert('Interested!')}
+                  />
+                </View>
+              </View>
+              <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
+          <View style = {styles.eventInfo}>
+                <Text style = {styles.eventText}>Cars and Coffee</Text>
+                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
+                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
+  
+                <View style = {styles.eventButton}>
+                  
+                  <Button
+                    title="Going to Event!"
+                    color='#D8232F'
+                    onPress={() => Alert.alert('Going!')}
+                  />
+                  <Button
+                    title="Interested!"
+                    color='#FFFF00'
+                    onPress={() => Alert.alert('Interested!')}
+                  />
+                </View>
+              </View>
+          </ScrollView>
+      </View>
+    </PagerView>
     );
     
   }
@@ -86,6 +190,13 @@ const Profile = () => {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    headerView: { 
+     backgroundColor: '#C4C4C4'
+    },
+    pagerView: {
+      flex: 1,
+     
     },
     headBanner: {
       flex: 1,
@@ -144,7 +255,7 @@ const Profile = () => {
   
     },
     profileCar: {
-      height: 250,
+      height: 200,
       width: 400
     },
     profilePictureView: {
@@ -181,7 +292,7 @@ const Profile = () => {
       flex: 1.4
     },
     eventDetails: {
-  
+
     },
     carLoad: {
       backgroundColor: '#C4C4C4'

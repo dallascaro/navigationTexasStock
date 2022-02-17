@@ -12,154 +12,9 @@ import PagerView from 'react-native-pager-view';
 
 const Services = ({navigation}) => {
     return(
-      <PagerView style={styles.pagerView} initialPage={0}>
-      <View key="1">
-        <Text>Attending</Text>
-        <Text>This is the content for the first page</Text>
-        <ScrollView style = {styles.eventDetails}>
-          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
-              <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
-          </ScrollView>
-      </View>
-
-      <View key="2">
-        <Text>Interested</Text>
-        <Text>This is the content for the second page</Text>
-        <ScrollView style = {styles.eventDetails}>
-          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
-              <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
-          </ScrollView>
-      </View>
-
-      <View key="3">
-        <Text>My Events</Text>
-        <Text>This is the content for the second page</Text>
-        <Button
-                    title="Create Event!"
-                    color='#17E217'
-                    onPress={() => navigation.navigate("CreateEvent")}
-                    
-                  />
-        <ScrollView style = {styles.eventDetails}>
-          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
-              <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
-          </ScrollView>
-      </View>
-    </PagerView>
+     <View>
+       <Text>Services page</Text>
+     </View>
     );
     
   }
@@ -172,9 +27,12 @@ const Services = ({navigation}) => {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    headerView: { 
+     backgroundColor: '#C4C4C4'
+    },
     pagerView: {
       flex: 1,
-      marginTop: 200
+     
     },
     headBanner: {
       flex: 1,
@@ -270,7 +128,7 @@ const Services = ({navigation}) => {
       flex: 1.4
     },
     eventDetails: {
-  
+
     },
     carLoad: {
       backgroundColor: '#C4C4C4'
