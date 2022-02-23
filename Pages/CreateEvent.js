@@ -13,6 +13,35 @@ import { collection, getDocs, addDoc } from "firebase/firestore/lite";
 
 const CreateEvent = ({navigation}) => {
 
+  const[userName, setUserName] = React.useState("UserName");
+  const[eventDate, setDate] = React.useState("Date");
+  const[eventTime, setTime] = React.useState("Time");
+  const[eventCity, setCity] = React.useState("City");
+  const[eventState, setState] = React.useState("State");
+  const[eventTitle, setTitle] = React.useState("Title");
+  const[eventDescription, setDescription] = React.useState("Description");
+
+  const createEvent = async () => { 
+    // Add a new document with a generated id.
+  const docRef = await addDoc(collection(db, "Users Events"), {
+  username: "Dallas",
+  date: eventDate,
+  time: eventTime,
+  city: eventCity,
+  state: eventState,
+  title: eventTitle,
+  description: eventDescription
+  
+});
+const ordersCol = collection(db, 'Users Events')
+    const ordersSnapshot = await getDocs(ordersCol)
+    const orderList = ordersSnapshot.docs.map(doc => doc.data());
+
+    console.log(orderList)
+console.log("Document written with ID: ", docRef.id);
+
+  }
+
     return(
       <View  style = {styles.container}  >
 
@@ -31,43 +60,53 @@ const CreateEvent = ({navigation}) => {
         <View style = {styles.eventData}>
           <Text style = {styles.eventText}>Date / Time</Text>
             <View style = {styles.eventInput}>
-            <TextInput style = {styles.eventTextInput} >Date</TextInput>
-            <TextInput style = {styles.eventTextInput} >Time</TextInput>
+            <TextInput style = {styles.eventTextInput} 
+            onChangeText = {setDate}>Date</TextInput>
+            <TextInput style = {styles.eventTextInput} 
+            onChangeText = {setTime}>Time</TextInput>
             </View>
         </View>
 
         <View style = {styles.eventData}>
           <Text style = {styles.eventText}>City / State</Text>
             <View style = {styles.eventInput}>
-            <TextInput style = {styles.eventTextInput} >City</TextInput>
-            <TextInput style = {styles.eventTextInput}>State</TextInput>
+            <TextInput style = {styles.eventTextInput} 
+            onChangeText = {setCity}>City</TextInput>
+            <TextInput style = {styles.eventTextInput}
+            onChangeText = {setState}>State</TextInput>
             </View>
         </View>  
           
         <View style = {styles.eventData}>
         <Text style = {styles.eventText}>Title / Desc</Text>
           <View style = {styles.eventInput}>
-            <TextInput style = {styles.eventTextInput}>Title</TextInput>
-            <TextInput style = {styles.eventTextInput}>Desc</TextInput>
+            <TextInput style = {styles.eventTextInput}
+            onChangeText = {setTitle}>Title</TextInput>
+            <TextInput style = {styles.eventTextInput}
+            onChangeText = {setDescription}>Desc</TextInput>
          </View>
         </View>
 
         <View style = {styles.eventButton}>
-        <Button
-          title="Post"
-          color='#17E217'
-          onPress={() => Alert.alert('Posted Comment!')} 
-          />
-          <View style = {styles.eventButton}>
+         
+          <View style = {styles.eventDetails}>
+            <Button
+            title="Post"
+            color='#17E217'
+            onPress={createEvent} 
+            />
+          </View>
+          <View>
           <Button
             title="Cancel"
             color='#D8232F'
             onPress={() => Alert.alert('Cancled Comment!')}
             />
           </View>
+        
+          </View>
          
-        </View>
-         
+       
         </View>
       
       </View>
@@ -85,8 +124,9 @@ const CreateEvent = ({navigation}) => {
     },
     headComment: {
       flexDirection: 'row',
-      marginRight: 250,
-      backgroundColor: '#C4C4C4'
+      width: 400,
+      backgroundColor: '#C4C4C4',
+      paddingTop: 20
     },
     comment: {
       paddingTop: 50,
@@ -216,7 +256,7 @@ const CreateEvent = ({navigation}) => {
       flex: 1.4
     },
     eventDetails: {
-  
+      marginRight: 80
     },
     carLoad: {
       backgroundColor: '#C4C4C4'
@@ -225,7 +265,7 @@ const CreateEvent = ({navigation}) => {
       backgroundColor: '#C4C4C4'
     },
     eventButton: {
-      flex: .5,
+      flex: .3,
       flexDirection: 'row',
       marginLeft: 100,
     },

@@ -31,6 +31,7 @@ const EventsStackNavigator = () => {
     return (
       <Stack.Navigator screenOptions={screenOptionStyle}>
         <Stack.Screen name="Events" component={Events} options={{headerShown: false}} />
+       
       </Stack.Navigator>
     );
   };
@@ -38,6 +39,7 @@ const EventsStackNavigator = () => {
     return (
       <Stack.Navigator screenOptions={screenOptionStyle}>
         <Stack.Screen name="Profile" component={Profile} options={{headerShown: false}}/>
+        <Stack.Screen name = "CreateEvent" component={CreateEvent} options = {{headerShown: false}} />
       </Stack.Navigator>
     );
   };
@@ -45,7 +47,6 @@ const EventsStackNavigator = () => {
     return (
       <Stack.Navigator screenOptions={screenOptionStyle}>
         <Stack.Screen name="Services" component={Services}  options={{headerShown: false}} />
-        <Stack.Screen name = "CreateEvent" component={CreateEvent} options = {{headerShown: false}} />
       </Stack.Navigator>
     );
   };
@@ -60,7 +61,7 @@ const EventsStackNavigator = () => {
 const TabNavigator = () => {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="EventsT" 
+      <Tab.Screen name="Events" 
       component={EventsStackNavigator} 
       options={{headerShown: false}}
       />

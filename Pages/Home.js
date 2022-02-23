@@ -10,11 +10,35 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import {auth} from '../firebase'
 import { sendPasswordResetEmail } from "firebase/auth";
+import { db, writeUserData } from "../firebase";
+import { collection, getDocs, addDoc } from "firebase/firestore/lite";
 
 const Home = ({ navigation }) => {
 
   const[email, setEmail] = React.useState("Email");
   const[password, setPassword] = React.useState("Password");
+
+  const onRegister = async () => {
+    try {
+      const credential = await auth.createUserWithEmailAndPassword(
+        email,
+        password,
+      );
+      const {uid} = credential;
+      console.log(uid)
+      // your data here (dont forget to store the uid on the document)
+      const user = {
+        email: email,
+        user_id: uid,
+      };
+      console.log(user)
+      await firestore().collection('Users').doc(uid).set(user);
+    } catch {
+      console.log("Didnt add to database")
+    }
+    navigation.navigate("EventsT")
+  };
+  
 
   const signUp = () => {
     auth.createUserWithEmailAndPassword(email, password)
@@ -108,7 +132,7 @@ const Home = ({ navigation }) => {
             title="Sign Up!"
             color='#D8232F'
             borderRadius = '10'
-            onPress={signUp}
+            onPress={onRegister}
           />
           </View>
           

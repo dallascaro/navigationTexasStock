@@ -9,11 +9,52 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
+import { db, writeUserData } from "../firebase";
+import { collection, getDocs, addDoc } from "firebase/firestore/lite";
 
 const Services = ({navigation}) => {
+  const [eventList, setEventList] = useState([]);
+  const list = [];
+
+  const sampleFunction=(item)=>{
+    Alert.alert(item)
+  }
+
+  const PullData = async () => {
+    const ordersCol = collection(db, 'Users Events')
+    const ordersSnapshot = await getDocs(ordersCol)
+    const orderList = ordersSnapshot.docs.map(doc => doc.data());
+
+    ordersSnapshot.forEach((doc) => {
+      list.push(doc.data());
+    });
+    setEventList(list);
+
+    console.log("Order list ",orderList)
+    console.log("Event List ",eventList)
+
+    console.log("List",list[0])
+    console.log("List 2", list[1])
+  }
+
+    //Call when component is rendered
+    useEffect(() => {
+      PullData();
+    }, []);
+
     return(
      <View>
        <Text>Services page</Text>
+       <View style={{flexDirection:'row'}}>
+                  <Text>Hello</Text>
+                  {
+                    list.map((item, key) =>(
+                      <Text key ={key} style={styles.dataBaseData}>
+                        Items {item}
+                      </Text>
+                    ))
+                  }
+                </View>
      </View>
     );
     
