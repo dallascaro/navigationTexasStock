@@ -10,7 +10,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 
 import { db, writeUserData } from "../firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore/lite";
+import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore/lite";
 
 const Events = () => {
 

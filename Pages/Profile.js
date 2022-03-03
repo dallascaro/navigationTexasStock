@@ -8,49 +8,52 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import ScrollPicker from 'react-native-wheel-scrollview-picker';
 //import Carousel from 'react-native-snap-carousel';
-import { TextInput } from 'react-native-gesture-handler';
+import { FlatList, TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
 import { db, writeUserData } from "../firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore/lite";
+import { collection, getDocs, addDoc, doc } from "firebase/firestore/lite";
 
 const Profile = ({navigation}) => {
 
-  const[userName, setUserName] = React.useState("UserName");
-  const[eventDate, setDate] = React.useState("Date");
-  const[eventTime, setTime] = React.useState("Time");
-  const[eventCity, setCity] = React.useState("City");
-  const[eventState, setState] = React.useState("State");
-  const[eventTitle, setTitle] = React.useState("Title");
-  const[eventDescription, setDescription] = React.useState("Description");
-
   const [eventList, setEventList] = useState([]);
+  
   const list = [];
 
-  const sampleFunction=(item)=>{
-    Alert.alert(item)
-  }
+  const events = [];
+
+  const form = ['City', 'Date', 'Description', 'State', 'Time', 'Title', 'Username']
+    const textInputComponents = form.map(type => <TextInput placeholder={type} />)
 
   const PullData = async () => {
-    const ordersCol = collection(db, 'Users Events')
-    const ordersSnapshot = await getDocs(ordersCol)
-    const orderList = ordersSnapshot.docs.map(doc => doc.data());
-
-    ordersSnapshot.forEach((doc) => {
-      list.push(doc.data());
-    });
-    setEventList(list);
-
-    console.log("Order list ",orderList)
-    console.log("Event List ",eventList)
-
-    console.log("List",list[0])
-    console.log("List 2", list[1])
+    const myDoc = collection(db, 'Users Events')
+    const snapShot = await getDocs(myDoc);
+    const snapList = snapShot.docs.map(doc => doc.data());
+    setEventList(snapList)
   }
+
+  
 
     //Call when component is rendered
     useEffect(() => {
       PullData();
     }, []);
+
+    console.log( "Event List" ,eventList)
+
+    const renderItem = ({ item }) => {
+      return(
+        <View>
+          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
+          <Text>{item.city}</Text>
+          <Text>{item.date}</Text>
+          <Text>{item.description}</Text>
+          <Text>{item.state}</Text>
+          <Text>{item.time}</Text>
+          <Text>{item.title}</Text>
+          <Text>{item.username}</Text>
+        </View>
+      )
+    }
 
     return(
       <PagerView style={styles.pagerView} initialPage={0}>
@@ -65,60 +68,13 @@ const Profile = ({navigation}) => {
         </View>
         
         <ScrollView style = {styles.eventDetails}>
-          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-                <Text>Database Data below</Text>
-                
-                <View style={{flexDirection:'row'}}>
-                  <Text>Hello</Text>
-                  <Text>{list.city}</Text>
-                  {
-                    list.map((item, key) =>(
-                      <Text key ={key} style={styles.dataBaseData}>
-                        Items {item}
-                      </Text>
-                    ))
-                  }
-                </View>
+          <View>
+            <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {eventList}
+              renderItem = {renderItem}
+              />
+          </View>
 
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
-              <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
           </ScrollView>
       </View>
 
@@ -130,49 +86,18 @@ const Profile = ({navigation}) => {
             <Text>Interested</Text>
         <Text>This is the content for the second page</Text>
         </View>
-       
+
         <ScrollView style = {styles.eventDetails}>
-          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
-              <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
+          <View>
+            <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {eventList}
+              renderItem = {renderItem}
+              />
+          </View>
+
           </ScrollView>
+       
+       
       </View>
 
       <View key="3">
@@ -185,61 +110,23 @@ const Profile = ({navigation}) => {
         </View>
 
         <Button
-        title = "Pull Data"
-        onPress={PullData} >
-        </Button>
-       
-        <Button
                     title="Create Event!"
                     color='#17E217'
                     onPress={() => navigation.navigate("CreateEvent")}
                     
                   />
 
-        
-        <ScrollView style = {styles.eventDetails}>
-          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
-              <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-          <View style = {styles.eventInfo}>
-            
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-  
-                <View style = {styles.eventButton}>
-                  
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                </View>
-              </View>
+<ScrollView style = {styles.eventDetails}>
+          <View>
+            <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {eventList}
+              renderItem = {renderItem}
+              />
+          </View>
+
           </ScrollView>
+        
+        
       </View>
     </PagerView>
     );
@@ -355,7 +242,7 @@ const Profile = ({navigation}) => {
       flex: 1.4
     },
     eventDetails: {
-
+      height: 100
     },
     carLoad: {
       backgroundColor: '#C4C4C4'
