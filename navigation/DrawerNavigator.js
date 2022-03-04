@@ -13,8 +13,8 @@ const Drawer = createDrawerNavigator();
 const DrawerNavigator = () => {
   return (
     <Drawer.Navigator>
-      <Drawer.Screen name="Home" component={MainStackNavigator} options={{headerShown: false}} />
-      <Drawer.Screen name="Events" component={TabNavigator} options={{headerShown: false}}/>
+      <Drawer.Screen name="Home" component={MainStackNavigator} options={{headerShown: false, swipeEnabled: false}} />
+      <Drawer.Screen name="EventsT" component={TabNavigator} options={{headerShown: false}}/>
       <Drawer.Screen name ="Settings" component={SettingsStackNavigator} options={{headerShown: false}}/>
     </Drawer.Navigator>
   );

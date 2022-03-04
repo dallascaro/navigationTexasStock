@@ -47,6 +47,7 @@ console.log("Document written with ID: ", docRef.id);
 
         <View style = {styles.headComment}>
           <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+          <Text style = {styles.comment}>Username</Text>
           <Text style = {styles.comment}>Create Event</Text>
         </View>
 

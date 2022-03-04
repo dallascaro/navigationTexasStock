@@ -217,7 +217,8 @@ const Profile = ({navigation}) => {
     profilePicture: {
       height: 100,
       width: 100,
-      borderRadius: 100/2
+      borderRadius: 100/2,
+      marginLeft: 150
     },
     profileNamePictureView:{
         marginLeft: 150

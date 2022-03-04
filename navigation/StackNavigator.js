@@ -7,7 +7,7 @@ import Services from "../Pages/Services";
 import Settings from "../Pages/Settings";
 import CreateEvent from "../Pages/CreateEvent";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -61,16 +61,26 @@ const EventsStackNavigator = () => {
 const TabNavigator = () => {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Events" 
+      <Tab.Screen name="EventsT" 
       component={EventsStackNavigator} 
-      options={{headerShown: false}}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="car" color={color} size={size} />
+        ),headerShown: false}}
       />
       <Tab.Screen name="Profile" 
       component={ProfileStackNavigator} 
-      options={{headerShown: false}}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="home-account" color={color} size={size} />
+        ),headerShown: false}}
       />
       <Tab.Screen name="Services" 
-      component={ServicesStackNavigator } 
+      component={ServicesStackNavigator }
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
+        ),headerShown: false}}
       />
     </Tab.Navigator>
   );
