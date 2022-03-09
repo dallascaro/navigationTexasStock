@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable} from 'react-native';
+import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable,  TouchableHighlight} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -15,6 +15,10 @@ import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore/lit
 const Events = () => {
 
   const[userComment, setComment] = React.useState("Comment");
+
+  const[userReport, setReport] = React.useState("Report");
+
+  const[userEvent, setEvent] = React.useState("Event");
 
   const PullData = async () => {
     const ordersCol = collection(db, 'Users Comments')
@@ -38,6 +42,41 @@ const ordersCol = collection(db, 'Users Comments')
 console.log("Document written with ID: ", docRef.id);
 
   }
+
+  const reportContent = async () => { 
+    // Add a new document with a generated id.
+  const docRef = await addDoc(collection(db, "Reported Events"), {
+  eventName: "Event",
+  user: userReport
+});
+
+console.log("Document written with ID: ", docRef.id);
+
+  }
+
+  const goingToEvent = async () => { 
+    // Add a new document with a generated id.
+  const docRef = await addDoc(collection(db, "Users Going Events"), {
+  username: "Dallas",
+  event: userEvent
+});
+
+console.log("Document written with ID: ", docRef.id);
+
+  }
+
+  const interestedInEvent = async () => { 
+    // Add a new document with a generated id.
+  const docRef = await addDoc(collection(db, "Users Interested Events"), {
+  username: "Jeremy",
+  event: userEvent
+});
+
+console.log("Document written with ID: ", docRef.id);
+
+  }
+
+  
 
     const [state, setState] = useState([
   
@@ -111,28 +150,31 @@ console.log("Document written with ID: ", docRef.id);
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={() => {
-                  Alert.alert("Content has been reported");
-                  setModalVisible(!modalVisible);
+                  setModalVisible(modalVisible);
                   }}
                 >
                 <View style={styles.centeredView}>
                   <View style={styles.modalView}>
                     <Text style={styles.modalText}>Enter Why this content is being reported</Text>
-                    <TextInput>Enter Text</TextInput>
-                    <Pressable
-                      style={[styles.button, styles.buttonClose]}
-                      onPress={() => setModalVisible(!modalVisible)}
-                    >
-                      <Text style={styles.textStyle}>End Report</Text>
-                    </Pressable>
+                      <TextInput 
+                       onChangeText = {setReport}>Enter Text</TextInput>
+                    
+                    <Button
+                    title="Report!"
+                    color='#D8232F'
+                    onPress={reportContent}
+                  />
+
                   </View>
                 </View>
               </Modal>
+
               <Pressable
                 style={[styles.button, styles.buttonOpen]}
                 onPress={() => setModalVisible(true)}
               >
                 <Text style={styles.textStyle}>Report Content</Text>
+               
               </Pressable>
   
               <View style = {styles.eventInfo}>
@@ -150,24 +192,30 @@ console.log("Document written with ID: ", docRef.id);
                     color='#D8232F'
                     onPress={PostData}
                   />
-  
+
+         
+              
                 <View style = {styles.eventButton}>
 
-                  <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                   <Button
-                    title="Share Event!"
-                    color='#00FF00'
-                    onPress={onShare}
-                  />
+                <TouchableHighlight onPress={goingToEvent}>
+                    <View style={styles.goingButton}>
+                      <Text style={styles.buttonText}>Going To Event</Text>
+                    </View>
+                  </TouchableHighlight>
+
+                <TouchableHighlight onPress={interestedInEvent}>
+                    <View style={styles.interestedButton}>
+                      <Text style={styles.buttonText}>Interested</Text>
+                    </View>
+                  </TouchableHighlight>
+
+                  <TouchableHighlight onPress={onShare}>
+                    <View style={styles.shareButton}>
+                      <Text style={styles.buttonText}>Share Event!</Text>
+                    </View>
+                  </TouchableHighlight>
+
+               
                 </View>
               </View>
         </View>
@@ -201,7 +249,11 @@ console.log("Document written with ID: ", docRef.id);
                 style={[styles.button, styles.buttonClose]}
                 onPress={() => setModalVisible(!modalVisible)}
               >
-                <Text style={styles.textStyle}>End Report</Text>
+               <Button
+                    title="Comment!"
+                    color='#D8232F'
+                    onPress={PostData}
+                  />
               </Pressable>
             </View>
           </View>
@@ -228,22 +280,28 @@ console.log("Document written with ID: ", docRef.id);
                     color='#D8232F'
                     onPress={PostData}
                   />
+               
                 <View style = {styles.eventButton}>
-                <Button
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                  <Button
-                    title="Share Event!"
-                    color='#00FF00'
-                    onPress={onShare}
-                  />
+
+                <TouchableHighlight onPress={goingToEvent}>
+                    <View style={styles.goingButton}>
+                      <Text style={styles.buttonText}>Going To Event</Text>
+                    </View>
+                  </TouchableHighlight>
+
+                <TouchableHighlight onPress={interestedInEvent}>
+                    <View style={styles.interestedButton}>
+                      <Text style={styles.buttonText}>Interested</Text>
+                    </View>
+                  </TouchableHighlight>
+
+                  <TouchableHighlight onPress={onShare}>
+                    <View style={styles.shareButton}>
+                      <Text style={styles.buttonText}>Share Event!</Text>
+                    </View>
+                  </TouchableHighlight>
+
+               
                 </View>
               </View>
             </View>
@@ -277,6 +335,11 @@ console.log("Document written with ID: ", docRef.id);
                 style={[styles.button, styles.buttonClose]}
                 onPress={() => setModalVisible(!modalVisible)}
               >
+                 <Button
+                    title="Comment!"
+                    color='#D8232F'
+                    onPress={PostData}
+                  />
                 <Text style={styles.textStyle}>End Report</Text>
               </Pressable>
             </View>
@@ -304,22 +367,29 @@ console.log("Document written with ID: ", docRef.id);
                     color='#D8232F'
                     onPress={PostData}
                   />
+                  
+              
                 <View style = {styles.eventButton}>
-                <Button style = {styles.choicesButton}
-                    title="Going to Event!"
-                    color='#D8232F'
-                    onPress={() => Alert.alert('Going!')}
-                  />
-                  <Button style = {styles.choicesButton}
-                    title="Interested!"
-                    color='#FFFF00'
-                    onPress={() => Alert.alert('Interested!')}
-                  />
-                   <Button
-                    title="Share Event!"
-                    color='#00FF00'
-                    onPress={onShare}
-                  />
+
+                <TouchableHighlight onPress={goingToEvent}>
+                    <View style={styles.goingButton}>
+                      <Text style={styles.buttonText}>Going To Event</Text>
+                    </View>
+                  </TouchableHighlight>
+
+                <TouchableHighlight onPress={interestedInEvent}>
+                    <View style={styles.interestedButton}>
+                      <Text style={styles.buttonText}>Interested</Text>
+                    </View>
+                  </TouchableHighlight>
+
+                  <TouchableHighlight onPress={onShare}>
+                    <View style={styles.shareButton}>
+                      <Text style={styles.buttonText}>Share Event!</Text>
+                    </View>
+                  </TouchableHighlight>
+
+               
                 </View>
               </View>
             </View>
@@ -339,6 +409,24 @@ console.log("Document written with ID: ", docRef.id);
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    goingButton: {
+      backgroundColor: '#D8232F',
+      height: 30,
+      borderRadius: 10,
+    },
+    interestedButton: {
+      backgroundColor: '#FFFF00',
+      height: 30,
+      borderRadius: 10,
+    },
+    shareButton: {
+      backgroundColor: '#00FF00',
+      height: 30,
+      borderRadius: 10
+    },
+    buttonText: {
+      color: '#000000'
     },
     headBanner: {
       flex: 1,

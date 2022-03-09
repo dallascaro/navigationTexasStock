@@ -8,7 +8,8 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, set } from "firebase/database";
+import { getStorage, ref, getBytes, uploadBytes, getDownloadURL} from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -34,14 +35,12 @@ const auth = firebase.auth()
 // Firestore database
 const db = getFirestore(app);
 
-// Function to write data for a user
-function writeUserData(email, name ) {
-    set(ref(db, 'Users Credentials' + email), {
-      email: email,
-      name: name
-    });
-  }
+//Storage
+// Get a reference to the storage service, which is used to create references in your storage bucket
+const storage = getStorage(app);
+const pathReference = ref(storage, 'TestPictures/BerryPic1.png');
+uploadBytes(pathReference)
 
-export {auth, db, writeUserData};
+export {auth, db, storage, pathReference};
 export default getFirestore(app);
 //Test comment from Jeremy

@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable} from 'react-native';
+import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableHighlight} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -260,7 +260,8 @@ const styles = StyleSheet.create({
 
   signUpLogin: {
    flex: 1,
-   marginTop: 200
+   marginTop: 200,
+   marginBottom: 55
   },
   loginInput: {
     backgroundColor: '#C9C9C9',
@@ -272,10 +273,10 @@ const styles = StyleSheet.create({
    flex: .5,
    flexDirection: 'row',
    justifyContent: 'space-between',
-   marginBottom: 50
+   paddingTop: 10
   },
   signUpButtonView: {
-  paddingRight: 20,
+  paddingRight: 20
   },
   forgotPassButtonView : {
      
@@ -309,7 +310,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonBorder: {
-    borderRadius: 4
+    borderRadius: 4,
+   
   },
   copyRight: {
     color: 'white',

@@ -66,21 +66,21 @@ const TabNavigator = () => {
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="car" color={color} size={size} />
-        ),headerShown: false}}
+        ),headerShown: false, tabBarBadge: '5'}}
       />
       <Tab.Screen name="Profile" 
       component={ProfileStackNavigator} 
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="home-account" color={color} size={size} />
-        ),headerShown: false}}
+        ),headerShown: false,  tabBarBadge: '2'}}
       />
       <Tab.Screen name="Services" 
       component={ServicesStackNavigator }
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
-        ),headerShown: false}}
+        ),headerShown: false,  tabBarBadge: '3'}}
       />
     </Tab.Navigator>
   );
