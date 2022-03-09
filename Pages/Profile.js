@@ -10,7 +10,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import Carousel from 'react-native-snap-carousel';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
-import { db, pathReference, storage } from "../firebase";
+import {getDownloadURL} from "firebase/storage";
+import { db, pathReference, profilePicRef} from "../firebase";
 import { collection, getDocs, addDoc, doc } from "firebase/firestore/lite";
 // To pick the file from local file system
 import DocumentPicker from "react-native-document-picker";
@@ -24,14 +25,12 @@ const Profile = ({navigation}) => {
 
   const events = [];
 
-   // State Defination
-   const [loading, setLoading] = useState(false);
-   const [filePath, setFilePath] = useState({});
-   const [process, setProcess] = useState("");
+  const [imageUrl, setImageUrl] = useState(undefined);
 
-  const form = ['City', 'Date', 'Description', 'State', 'Time', 'Title', 'Username']
-    const textInputComponents = form.map(type => <TextInput placeholder={type} />)
-
+  // Download file
+const profilePicture = getDownloadURL(profilePicRef).then((x) => {
+  setImageUrl(x);
+})
 
   const PullData = async () => {
     const myDoc = collection(db, 'Users Events')
@@ -40,17 +39,10 @@ const Profile = ({navigation}) => {
     setEventList(snapList)
   }
 
-  const pullImage = async (img) => {
-    setImage(e.target.files[0]);
-  }
-  
-
     //Call when component is rendered
     useEffect(() => {
       PullData();
     }, []);
-
-    console.log( "Event List" ,eventList)
 
     const renderItem = ({ item }) => {
       return(
@@ -66,74 +58,7 @@ const Profile = ({navigation}) => {
         </View>
       )
     }
-
-    const _chooseFile = async () => {
-      // Opening Document Picker to select one file
-      try {
-        const fileDetails = await DocumentPicker.pick({
-          // Provide which type of file you want user to pick
-          type: [DocumentPicker.types.allFiles],
-        });
-        console.log(
-          "fileDetails : " + JSON.stringify(fileDetails)
-        );
-        // Setting the state for selected File
-        setFilePath(fileDetails);
-      } catch (error) {
-        setFilePath({});
-        // If user canceled the document selection
-        alert(
-          DocumentPicker.isCancel(error)
-            ? "Canceled"
-            : "Unknown Error: " + JSON.stringify(error)
-        );
-      }
-    };
-
-    const _uploadFile = async () => {
-      try {
-        // Check if file selected
-        if (Object.keys(filePath).length == 0)
-          return alert("Please Select any File");
-        setLoading(true);
-  
-        // Create Reference
-        console.log(filePath.uri.replace("file://", ""));
-        console.log(filePath.name);
-        const reference = storage().ref(
-          `/myfiles/${filePath.name}`
-        );
-  
-        // Put File
-        const task = reference.putFile(
-          filePath.uri.replace("file://", "")
-        );
-        // You can do different operation with task
-        // task.pause();
-        // task.resume();
-        // task.cancel();
-  
-        task.on("state_changed", (taskSnapshot) => {
-          setProcess(
-            `${taskSnapshot.bytesTransferred} transferred 
-             out of ${taskSnapshot.totalBytes}`
-          );
-          console.log(
-            `${taskSnapshot.bytesTransferred} transferred 
-             out of ${taskSnapshot.totalBytes}`
-          );
-        });
-        task.then(() => {
-          alert("Image uploaded to the bucket!");
-          setProcess("");
-        });
-        setFilePath({});
-      } catch (error) {
-        console.log("Error->", error);
-        alert(`Error-> ${error}`);
-      }
-      setLoading(false);
-    };
+     
   
 
     return(
@@ -143,34 +68,11 @@ const Profile = ({navigation}) => {
         <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
         <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
-        <Image style = {styles.profileImage} source = {pathReference}/>
+        <Image style = {styles.profileImage} source = {imageUrl}/>
             <Text>User Name</Text>
             <Text>Attending</Text>
           <Text>This is the content for the first page</Text>
-
-          <TouchableOpacity
-                activeOpacity={0.5}
-                style={styles.buttonStyle}
-                onPress={_chooseFile}
-              >
-                <Text style={styles.buttonTextStyle}>
-                  Choose Image (Current Selected:{" "}
-                  {Object.keys(filePath).length == 0
-                    ? 0
-                    : 1}
-                  )
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.buttonStyle}
-                onPress={_uploadFile}
-              >
-                <Text style={styles.buttonTextStyle}>
-                  Upload File on FireStorage
-                </Text>
-              </TouchableOpacity>
-
+         
         </View>
         
         <ScrollView style = {styles.eventDetails}>

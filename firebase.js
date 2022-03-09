@@ -9,7 +9,8 @@ import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 import { getDatabase, set } from "firebase/database";
-import { getStorage, ref, getBytes, uploadBytes, getDownloadURL} from "firebase/storage";
+import { getStorage, ref, getBytes, uploadBytes, getDownloadURL, uploadBytesResumable} from "firebase/storage";
+import React, { useState, useEffect } from 'react';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -38,9 +39,25 @@ const db = getFirestore(app);
 //Storage
 // Get a reference to the storage service, which is used to create references in your storage bucket
 const storage = getStorage(app);
+// Create a storage reference from our storage service
+const storageRef = ref(storage);
+
 const pathReference = ref(storage, 'TestPictures/BerryPic1.png');
+// Create a reference from an HTTPS URL
+// Note that in the URL, characters are URL escaped!
+const pathReference2 = ref(storage, 'gs://texasstockrally-aaae6.appspot.com/TestPictures/BerryPic1.png');
+
+//Create a reference to upload pic
+const profilePicRef = ref(storage, 'assests/ProfilePicture/profilePic.jpg');
+
+// Create file variable
+const fileUpload = 'assests/ProfilePicture/profilePic.jpg';
+
+// Upload the file and metadata
+const uploadTask = uploadBytesResumable(profilePicRef, fileUpload);
+
 uploadBytes(pathReference)
 
-export {auth, db, storage, pathReference};
+export {auth, db, storage, pathReference, profilePicRef};
 export default getFirestore(app);
 //Test comment from Jeremy
