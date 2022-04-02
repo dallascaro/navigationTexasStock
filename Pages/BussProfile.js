@@ -21,25 +21,61 @@ import DocumentPicker, {
   types,
 } from 'react-native-document-picker'
 
-import { PayPalScriptProvider, PayPalButtons, Component } from "@paypal/react-paypal-js";
-import { StripeProvider, initStripe, CardField } from '@stripe/stripe-react-native';
-import { render } from 'react-dom';
-import { fetchPublishableKey } from '../helper';
-import { async } from '@firebase/util';
+const BussProfile = ({navigation}) => {
 
+  const [eventList, setEventList] = useState([]);
+  const [profileImage, setImage] = useState([]);
 
-const Services = ({navigation}) => {
+  
+  const [singleFile, setSingleFile] = useState('');
 
+  const list = [];
 
-  const [publishableKey, setPublishableKey] = useState('');
-  useEffect( () => {
-    async function init() {
-      const publishableKey = await fetchPublishableKey()
-      if(publishableKey) {
-        setPublishableKey(publishableKey)
-      }
+  const events = [];
+
+  const [imageUrl, setImageUrl] = useState([]);
+
+  const [imagePic, setImagePic] = useState([]);
+
+  // Download file
+const profilePicture = getDownloadURL(jeremyPic).then((x) => {
+  setImageUrl(x);
+  console.log(imageUrl);
+
+})
+
+const selectOneFile = async () => {
+  //Opening Document Picker for selection of one file
+  try {
+    const res = await DocumentPicker.pick({
+      type: [DocumentPicker.types.allFiles],
+      //There can me more options as well
+      // DocumentPicker.types.allFiles
+       type : [DocumentPicker.types.images]
+      // DocumentPicker.types.plainText
+      // DocumentPicker.types.audio
+      // DocumentPicker.types.pdf
+    });
+    //Printing the log realted to the file
+    console.log('res : ' + JSON.stringify(res));
+    console.log('URI : ' + res.uri);
+    console.log('Type : ' + res.type);
+    console.log('File Name : ' + res.name);
+    console.log('File Size : ' + res.size);
+    //Setting the state to show single file attributes
+    setSingleFile(res);
+  } catch (err) {
+    //Handling any exception (If any)
+    if (DocumentPicker.isCancel(err)) {
+      //If user canceled the document selection
+      alert('Canceled from single doc picker');
+    } else {
+      //For Unknown Error
+      alert('Unknown Error: ' + JSON.stringify(err));
+      throw err;
     }
-  })
+  }
+};
 
   const PullData = async () => {
     const myDoc = collection(db, 'Company Info')
@@ -58,10 +94,6 @@ console.log("Document written with ID: ", docRef.id);
 
   }
 
-  const payment = async () => {
-    const response = await fetch()
-  }
-
   const PullUserData = async () => {
     const myDoc = collection(db, "Profile Images")
     const snapShot = await getDocs(myDoc);
@@ -69,11 +101,11 @@ console.log("Document written with ID: ", docRef.id);
     setImage(snapList)
   }
 
+
     //Call when component is rendered
     useEffect(() => {
       PullData();
     }, []);
-
 
     const renderItem = ({ item }) => {
       return(
@@ -82,45 +114,149 @@ console.log("Document written with ID: ", docRef.id);
            <Image style = {styles.profileCar} source = {{imagePic}}/>
 
           <Image>{item.url}</Image>
-          <Text>{item.eventPic}</Text>
           <Text>{item.name}</Text>
-          <Text>{item.city}</Text>
           <Text>{item.state}</Text>
+          <Text>{item.city}</Text>
           <Text>{item.address}</Text>
           <Text>{item.description}</Text>
-          <Text>{item.link}</Text>
+          <Text>{item.logourl}</Text>
           <Text>{item.username}</Text>
         </View>
       )
     }
 
-    return (
-      <StripeProvider  publishableKey={publishableKey}>
-        <View>
-          <Text>Credit Card</Text>
-          <CardField style = {styles.cardField} />
-          <Button
-          title = "Pay Now"
-          onPress={payment}></Button>
+    return(
+      <PagerView style={styles.pagerView} initialPage={0}>
+      <View key="1">
+
+        <View style = {styles.headerView}>
+        <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
+        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
+        <Image style = {styles.profileImage} source = {imageUrl}/>
+
+        {/*To show single file attribute*/}
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.buttonStyle}
+          onPress={selectOneFile}>
+          {/*Single file selection button*/}
+          <Text style={{marginRight: 10, fontSize: 19}}>
+            Click here to pick one file
+          </Text>
+          <Image
+            source={{
+              uri: 'https://img.icons8.com/offices/40/000000/attach.png',
+            }}
+            style={styles.imageIconStyle}
+          />
+        </TouchableOpacity>
+        {/*Showing the data of selected Single file*/}
+        <Text style={styles.textStyle}>
+          File Name: {singleFile.name ? singleFile.name : ''}
+          {'\n'}
+          Type: {singleFile.type ? singleFile.type : ''}
+          {'\n'}
+          File Size: {singleFile.size ? singleFile.size : ''}
+          {'\n'}
+          URI: {singleFile.uri ? singleFile.uri : ''}
+          {'\n'}
+        </Text>
+        <View
+          style={{
+            backgroundColor: 'grey',
+            height: 2,
+            margin: 10
+          }} />
+
+
+        <Button
+                    title="User!"
+                    color='#17E217'
+                    onPress={userProfile}
+                    
+                  />
+                 
+            <Text>User Name</Text>
+            <Text>Attending</Text>
+          <Text>This is the content for the first page</Text>
+         
         </View>
-      </StripeProvider>
+        
+        <ScrollView style = {styles.eventDetails}>
+          <View>
+            <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {eventList}
+              renderItem = {renderItem}
+              />
+          </View>
+
+          </ScrollView>
+      </View>
+
+      <View key="2">
+      <View style = {styles.headerView}>
+        <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
+        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
+            <Text>User Name</Text>
+            <Text>Interested</Text>
+        <Text>This is the content for the second page</Text>
+        </View>
+
+        <ScrollView style = {styles.eventDetails}>
+          <View>
+            <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {eventList}
+              renderItem = {renderItem}
+              />
+          </View>
+
+          </ScrollView>
        
-      )
+       
+      </View>
+
+      <View key="3">
+      <View style = {styles.headerView}>
+        <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
+        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
+            <Text>User Name</Text>
+            <Text>My Events</Text>
+        <Text>This is the content for the second page</Text>
+        </View>
+
+        
+
+<Button
+                    title="Create Brand!"
+                    color='#17E217'
+                    onPress={() => navigation.navigate("CreateBrand")}
+                    
+                  />
+
+<ScrollView style = {styles.eventDetails}>
+          <View>
+            <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {eventList}
+              renderItem = {renderItem}
+              />
+          </View>
+
+          </ScrollView>
+        
+        
+      </View>
+    </PagerView>
+    );
     
   }
 
-  export default Services;
+  export default BussProfile;
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-    },
-    cardField: {
-        width: '100%',
-        height: 50,
-        marginTop: 20
     },
     headerView: { 
      backgroundColor: '#C4C4C4'

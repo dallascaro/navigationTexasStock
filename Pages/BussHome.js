@@ -13,7 +13,7 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { db, writeUserData } from "../firebase";
 import { collection, getDocs, addDoc } from "firebase/firestore/lite";
 
-const Home = ({ navigation }) => {
+const BussHome = ({ navigation }) => {
 
   const[email, setEmail] = React.useState("Email");
   const[password, setPassword] = React.useState("Password");
@@ -36,7 +36,7 @@ const Home = ({ navigation }) => {
     } catch {
       console.log("Didnt add to database")
     }
-    navigation.navigate("EventsT")
+    navigation.navigate("EventsTB")
   };
   
 
@@ -57,7 +57,7 @@ const Home = ({ navigation }) => {
         // ..
       });
 
-      navigation.navigate("EventsT")
+      navigation.navigate("EventsTB")
   }
 
   const userLogin = () => {
@@ -77,9 +77,10 @@ const Home = ({ navigation }) => {
       // ..
     });
 
-    navigation.navigate("EventsT")
+    navigation.navigate("EventsTB")
 
   }
+
   const forgotPassword = () => {
 
     console.log("reset email sent to " + email);
@@ -102,13 +103,13 @@ const Home = ({ navigation }) => {
        
   
         <View style = {styles.signUpLogin}>
-          <Text>Email</Text>
+          <Text>Bussiness Email</Text>
           <TextInput style = {styles.loginInput}
           onChangeText = {setEmail}
           placeholder='name@example.com'>
             </TextInput>
   
-          <Text>Password</Text>
+          <Text>Bussiness Password</Text>
           <TextInput style = {styles.loginInput}
           onChangeText = {setPassword}
           placeholder='Min. 8 characters'
@@ -119,12 +120,6 @@ const Home = ({ navigation }) => {
             title="Forgot Password"
             color='#D8232F'
             onPress={forgotPassword}
-          />
-
-        <Button style = {styles.buttonBorder}
-            title="Bussiness Login"
-            color='#D8232F'
-            onPress={() => navigation.navigate("BussHome")}
           />
          
   
@@ -148,10 +143,9 @@ const Home = ({ navigation }) => {
             onPress={userLogin}
           />
           </View>
-          
 
+        
         </View>
-
   
         <View style = {styles.footerContent}>
           <Text style = {styles.copyRight}>Copyright @ Texas Stock Rally</Text>
@@ -161,7 +155,7 @@ const Home = ({ navigation }) => {
     );
   }
 
-export default Home;
+export default BussHome;
 
 const styles = StyleSheet.create({
   container: {

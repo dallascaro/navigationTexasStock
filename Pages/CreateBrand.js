@@ -11,29 +11,28 @@ import { TextInput } from 'react-native-gesture-handler';
 import { db, writeUserData } from "../firebase";
 import { collection, getDocs, addDoc } from "firebase/firestore/lite";
 
-const CreateEvent = ({navigation}) => {
+const CreateBrand = ({navigation}) => {
 
   const[userName, setUserName] = React.useState("UserName");
-  const[eventDate, setDate] = React.useState("Date");
-  const[eventTime, setTime] = React.useState("Time");
-  const[eventCity, setCity] = React.useState("City");
-  const[eventState, setState] = React.useState("State");
-  const[eventTitle, setTitle] = React.useState("Title");
-  const[eventDescription, setDescription] = React.useState("Description");
+  const[companyName, setCompanyName] = React.useState("CompanyName");
+  const[companyCity, setCity] = React.useState("City");
+  const[companyState, setState] = React.useState("State");
+  const[companyAddress, setAddress] = React.useState("Address");
+  const[companyDescription, setDescription] = React.useState("Description");
+  const[websiteLink, setLink] = React.useState("Website");
 
-  const createEvent = async () => { 
+  const createBrand = async () => { 
     // Add a new document with a generated id.
-  const docRef = await addDoc(collection(db, "Users Events"), {
+  const docRef = await addDoc(collection(db, "Company Info"), {
   username: "Dallas",
-  date: eventDate,
-  time: eventTime,
-  city: eventCity,
-  state: eventState,
-  title: eventTitle,
-  description: eventDescription
-  
+  name: companyName,
+  city: companyCity,
+  state: companyState,
+  address: companyAddress,
+  description: companyDescription,
+  link: websiteLink
 });
-const ordersCol = collection(db, 'Users Events')
+const ordersCol = collection(db, 'Company Info')
     const ordersSnapshot = await getDocs(ordersCol)
     const orderList = ordersSnapshot.docs.map(doc => doc.data());
 
@@ -48,7 +47,7 @@ console.log("Document written with ID: ", docRef.id);
         <View style = {styles.headComment}>
           <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
           <Text style = {styles.comment}>Username</Text>
-          <Text style = {styles.comment}>Create Event</Text>
+          <Text style = {styles.comment}>Create Brand</Text>
         </View>
 
         <View>
@@ -59,12 +58,12 @@ console.log("Document written with ID: ", docRef.id);
       <View style = {styles.commentSection}>
 
         <View style = {styles.eventData}>
-          <Text style = {styles.eventText}>Date / Time</Text>
+          <Text style = {styles.eventText}>Name / Link</Text>
             <View style = {styles.eventInput}>
             <TextInput style = {styles.eventTextInput} 
-            onChangeText = {setDate}>Date</TextInput>
+            onChangeText = {setCompanyName}>Name</TextInput>
             <TextInput style = {styles.eventTextInput} 
-            onChangeText = {setTime}>Time</TextInput>
+            onChangeText = {setLink}>Link</TextInput>
             </View>
         </View>
 
@@ -79,10 +78,10 @@ console.log("Document written with ID: ", docRef.id);
         </View>  
           
         <View style = {styles.eventData}>
-        <Text style = {styles.eventText}>Title / Desc</Text>
+        <Text style = {styles.eventText}>Address / Desc</Text>
           <View style = {styles.eventInput}>
             <TextInput style = {styles.eventTextInput}
-            onChangeText = {setTitle}>Title</TextInput>
+            onChangeText = {setAddress}>Address</TextInput>
             <TextInput style = {styles.eventTextInput}
             onChangeText = {setDescription}>Desc</TextInput>
          </View>
@@ -94,7 +93,7 @@ console.log("Document written with ID: ", docRef.id);
             <Button
             title="Post"
             color='#17E217'
-            onPress={createEvent} 
+            onPress={createBrand} 
             />
           </View>
           <View>
@@ -115,7 +114,7 @@ console.log("Document written with ID: ", docRef.id);
     
   }
 
-  export default CreateEvent;
+  export default CreateBrand;
 
   const styles = StyleSheet.create({
     container: {

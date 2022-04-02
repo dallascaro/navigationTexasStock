@@ -6,6 +6,9 @@ import Profile from "../Pages/Profile";
 import Services from "../Pages/Services";
 import Settings from "../Pages/Settings";
 import CreateEvent from "../Pages/CreateEvent";
+import CreateBrand from "../Pages/CreateBrand";
+import BussHome from "../Pages/BussHome";
+import BussProfile from "../Pages/BussProfile";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -24,6 +27,9 @@ const MainStackNavigator = () => {
     <Stack.Navigator screenOptions={screenOptionStyle}>
       <Stack.Screen name="Home" component={Home} options={{headerShown: false}} />
       <Stack.Screen name="Events" component={Events} />
+      <Stack.Screen name="BussHome" component={BussHome} options={{headerShown: false}} />
+        <Stack.Screen name="BussProfile" component={BussProfile} options={{headerShown: false}}/>
+      
     </Stack.Navigator>
   );
 };
@@ -31,7 +37,6 @@ const EventsStackNavigator = () => {
     return (
       <Stack.Navigator screenOptions={screenOptionStyle}>
         <Stack.Screen name="Events" component={Events} options={{headerShown: false}} />
-       
       </Stack.Navigator>
     );
   };
@@ -43,6 +48,16 @@ const EventsStackNavigator = () => {
       </Stack.Navigator>
     );
   };
+
+  const BussStackNavigator = () => {
+    return (
+      <Stack.Navigator screenOptions={screenOptionStyle}>
+        <Stack.Screen name="BussProfile" component={BussProfile} options={{headerShown: false}}/>
+        <Stack.Screen name = "CreateBrand" component={CreateBrand} options = {{headerShown: false}} />
+      </Stack.Navigator>
+    );
+  };
+
   const ServicesStackNavigator = () => {
     return (
       <Stack.Navigator screenOptions={screenOptionStyle}>
@@ -85,4 +100,25 @@ const TabNavigator = () => {
     </Tab.Navigator>
   );
 };
-export { MainStackNavigator, EventsStackNavigator, ProfileStackNavigator, ServicesStackNavigator, SettingsStackNavigator, TabNavigator };
+
+const BussTabNavigator = () => {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="EventsTB" 
+      component={EventsStackNavigator} 
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="car" color={color} size={size} />
+        ),headerShown: false, tabBarBadge: '5'}}
+      />
+      <Tab.Screen name="BussProfile" 
+      component={BussStackNavigator} 
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="home-account" color={color} size={size} />
+        ),headerShown: false,  tabBarBadge: '2'}}
+      />
+    </Tab.Navigator>
+  );
+};
+export { MainStackNavigator, EventsStackNavigator, ProfileStackNavigator, BussStackNavigator, ServicesStackNavigator, SettingsStackNavigator, TabNavigator, BussTabNavigator };

@@ -136,7 +136,7 @@ console.log("Document written with ID: ", docRef.id);
         <View>
   
           <View style = {styles.eventsProfilePost}>
-          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
             <Text style = {styles. eventsUserName}>User Name</Text>
           </View>
   
@@ -223,7 +223,7 @@ console.log("Document written with ID: ", docRef.id);
             <View>
   
             <View style = {styles.eventsProfilePost}>
-          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
             <Text style = {styles. eventsUserName}>User Name</Text>
           </View>
   
@@ -309,7 +309,7 @@ console.log("Document written with ID: ", docRef.id);
             <View>
   
             <View style = {styles.eventsProfilePost}>
-          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
             <Text style = {styles. eventsUserName}>User Name</Text>
           </View>
   

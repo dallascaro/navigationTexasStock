@@ -11,26 +11,71 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
 import {getDownloadURL} from "firebase/storage";
-import { db, pathReference, profilePicRef} from "../firebase";
+import { db, pathReference2, profilePicRef, jeremyPic} from "../firebase";
 import { collection, getDocs, addDoc, doc } from "firebase/firestore/lite";
 // To pick the file from local file system
-import DocumentPicker from "react-native-document-picker";
+import DocumentPicker, {
+  DirectoryPickerResponse,
+  DocumentPickerResponse,
+  isInProgress,
+  types,
+} from 'react-native-document-picker'
 
 const Profile = ({navigation}) => {
 
   const [eventList, setEventList] = useState([]);
-  const [profileimage, setImage] = useState([]);
+  const [profileImage, setImage] = useState([]);
+
   
+  const [singleFile, setSingleFile] = useState('');
+
   const list = [];
 
   const events = [];
 
-  const [imageUrl, setImageUrl] = useState(undefined);
+  const [imageUrl, setImageUrl] = useState([]);
+
+  const [imagePic, setImagePic] = useState([]);
 
   // Download file
-const profilePicture = getDownloadURL(profilePicRef).then((x) => {
+const profilePicture = getDownloadURL(jeremyPic).then((x) => {
   setImageUrl(x);
+  console.log(imageUrl);
+
 })
+
+const selectOneFile = async () => {
+  //Opening Document Picker for selection of one file
+  try {
+    const res = await DocumentPicker.pick({
+      type: [DocumentPicker.types.allFiles],
+      //There can me more options as well
+      // DocumentPicker.types.allFiles
+       type : [DocumentPicker.types.images]
+      // DocumentPicker.types.plainText
+      // DocumentPicker.types.audio
+      // DocumentPicker.types.pdf
+    });
+    //Printing the log realted to the file
+    console.log('res : ' + JSON.stringify(res));
+    console.log('URI : ' + res.uri);
+    console.log('Type : ' + res.type);
+    console.log('File Name : ' + res.name);
+    console.log('File Size : ' + res.size);
+    //Setting the state to show single file attributes
+    setSingleFile(res);
+  } catch (err) {
+    //Handling any exception (If any)
+    if (DocumentPicker.isCancel(err)) {
+      //If user canceled the document selection
+      alert('Canceled from single doc picker');
+    } else {
+      //For Unknown Error
+      alert('Unknown Error: ' + JSON.stringify(err));
+      throw err;
+    }
+  }
+};
 
   const PullData = async () => {
     const myDoc = collection(db, 'Users Events')
@@ -38,6 +83,24 @@ const profilePicture = getDownloadURL(profilePicRef).then((x) => {
     const snapList = snapShot.docs.map(doc => doc.data());
     setEventList(snapList)
   }
+
+  const userProfile = async () => { 
+    // Add a new document with a generated id.
+  const docRef = await addDoc(collection(db, "Profile Images"), {
+  url: imageUrl
+});
+
+console.log("Document written with ID: ", docRef.id);
+
+  }
+
+  const PullUserData = async () => {
+    const myDoc = collection(db, "Profile Images")
+    const snapShot = await getDocs(myDoc);
+    const snapList = snapShot.docs.map(doc => doc.data());
+    setImage(snapList)
+  }
+
 
     //Call when component is rendered
     useEffect(() => {
@@ -47,7 +110,11 @@ const profilePicture = getDownloadURL(profilePicRef).then((x) => {
     const renderItem = ({ item }) => {
       return(
         <View>
-          <Image style = {styles.profileCar} source = {require('../assets/Cars/chevyCamero.jpg')}/>
+           <Image style = {styles.profileCar} source = {{imageUrl}}/>
+           <Image style = {styles.profileCar} source = {{imagePic}}/>
+
+          <Image>{item.url}</Image>
+          <Text>{item.eventPic}</Text>
           <Text>{item.city}</Text>
           <Text>{item.date}</Text>
           <Text>{item.description}</Text>
@@ -58,8 +125,6 @@ const profilePicture = getDownloadURL(profilePicRef).then((x) => {
         </View>
       )
     }
-     
-  
 
     return(
       <PagerView style={styles.pagerView} initialPage={0}>
@@ -67,8 +132,51 @@ const profilePicture = getDownloadURL(profilePicRef).then((x) => {
 
         <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
-        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
         <Image style = {styles.profileImage} source = {imageUrl}/>
+
+        {/*To show single file attribute*/}
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.buttonStyle}
+          onPress={selectOneFile}>
+          {/*Single file selection button*/}
+          <Text style={{marginRight: 10, fontSize: 19}}>
+            Click here to pick one file
+          </Text>
+          <Image
+            source={{
+              uri: 'https://img.icons8.com/offices/40/000000/attach.png',
+            }}
+            style={styles.imageIconStyle}
+          />
+        </TouchableOpacity>
+        {/*Showing the data of selected Single file*/}
+        <Text style={styles.textStyle}>
+          File Name: {singleFile.name ? singleFile.name : ''}
+          {'\n'}
+          Type: {singleFile.type ? singleFile.type : ''}
+          {'\n'}
+          File Size: {singleFile.size ? singleFile.size : ''}
+          {'\n'}
+          URI: {singleFile.uri ? singleFile.uri : ''}
+          {'\n'}
+        </Text>
+        <View
+          style={{
+            backgroundColor: 'grey',
+            height: 2,
+            margin: 10
+          }} />
+
+
+        <Button
+                    title="User!"
+                    color='#17E217'
+                    onPress={userProfile}
+                    
+                  />
+                 
             <Text>User Name</Text>
             <Text>Attending</Text>
           <Text>This is the content for the first page</Text>
@@ -89,7 +197,7 @@ const profilePicture = getDownloadURL(profilePicRef).then((x) => {
       <View key="2">
       <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
-        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
             <Text>User Name</Text>
             <Text>Interested</Text>
         <Text>This is the content for the second page</Text>
@@ -111,13 +219,15 @@ const profilePicture = getDownloadURL(profilePicRef).then((x) => {
       <View key="3">
       <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
-        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.jpg')}/>
+        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
             <Text>User Name</Text>
             <Text>My Events</Text>
         <Text>This is the content for the second page</Text>
         </View>
 
-        <Button
+        
+
+<Button
                     title="Create Event!"
                     color='#17E217'
                     onPress={() => navigation.navigate("CreateEvent")}
