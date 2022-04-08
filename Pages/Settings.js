@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable,  TouchableHighlight} from 'react-native';
+import { Button, Text, View, Picker, StyleSheet, SafeAreaView, FlatList, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable,  TouchableHighlight} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -9,14 +9,150 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native-gesture-handler';
 
-const Settings = () => {
-    return(
-      <View  style = {styles.container}  >
-        <Text>Settings Screen</Text>
-      </View>
-    );
-    
+const DATA = [
+  {
+    id: '1',
+    title: 'Rims',
+  },
+  {
+    id: '2',
+    title: 'Tires',
+  },
+  {
+    id: '3',
+    title: 'Exhasut',
+  },
+  {
+    id: '4',
+    title: 'Decals',
+  },
+  {
+    id: '5',
+    title: 'Intakes',
+  },
+  {
+    id: '6',
+    title: 'Headers',
+  },
+  {
+    id: '7',
+    title: 'Rims',
+  },
+  {
+    id: '8',
+    title: 'Tires',
+  },
+  {
+    id: '9',
+    title: 'Exhasut',
+  },
+  {
+    id: '10',
+    title: 'Decals',
+  },
+];
+
+const OPTIONS = [
+  {
+    id: '1',
+    title: 'StoreOne',
+  },
+  {
+    id: '2',
+    title: 'StoreTwo',
+  },
+  {
+    id: '3',
+    title: 'StoreThree',
+  },
+  {
+    id: '4',
+    title: 'StoreFour',
+  },
+  {
+    id: '5',
+    title: 'StoreFive',
   }
+];
+
+const CONTENT = [
+  {
+    id: '1',
+    title: 'Black Rims',
+    link: 'https://www.americanmuscle.com/'
+  },
+  {
+    id: '2',
+    title: 'White Ball Tires',
+    link: 'https://www.cjponyparts.com/'
+  },
+  {
+    id: '3',
+    title: 'Long head Exhasut',
+    link: 'https://www.americanmuscle.com/'
+  },
+  {
+    id: '4',
+    title: 'Fire Decals',
+    link: 'https://www.cjponyparts.com/'
+  },
+  {
+    id: '5',
+    title: 'Cold Air Intakes',
+    link: 'https://www.americanmuscle.com/'
+  },
+  {
+    id: '6',
+    title: 'LongHeaders',
+    link: 'https://www.cjponyparts.com/'
+  },
+];
+
+const Item = ({ title, link }) => (
+  <View style={styles.item}>
+    <Text style={styles.title}>{title}{link}</Text>
+  </View>
+);
+
+const Settings = () => {
+  const renderItem = ({ item }) => (
+    <Item title={item.title} link = {item.link} />
+  );
+
+  const keyExtractor = (item) => item.id
+
+  return (
+
+    <View style={styles.container}>
+
+    <SafeAreaView  style={styles.listView}>
+
+      <FlatList horizontal ={true}
+      style={styles.listCategories}
+        data={DATA}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+      />
+
+  <FlatList horizontal ={true}
+      style={styles.listCategories}
+        data={OPTIONS}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+      />
+
+      <FlatList
+      style={styles.listData}
+        data={CONTENT}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+      />
+
+    </SafeAreaView>
+
+    </View>
+  );
+}
 
   export default Settings;
 
@@ -25,6 +161,26 @@ const Settings = () => {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    listView: {
+      flex: 1,
+      justifyContent: 'space-between',
+      paddingRight: 10
+    },
+    listCategories: {
+      backgroundColor: 'red'
+    },
+    listData: {
+      backgroundColor: 'green'
+    },
+    title: {
+      fontSize: 20
+    },
+    item: {
+      backgroundColor: 'white',
+      padding: 20,
+      marginVertical: 10,
+      marginHorizontal: 16,
     },
     headBanner: {
       flex: 1,

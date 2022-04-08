@@ -22,24 +22,73 @@ import DocumentPicker, {
 } from 'react-native-document-picker'
 
 import { PayPalScriptProvider, PayPalButtons, Component } from "@paypal/react-paypal-js";
-import { StripeProvider, initStripe, CardField } from '@stripe/stripe-react-native';
+import { StripeProvider, initStripe, CardField, useConfirmPayment } from '@stripe/stripe-react-native';
 import { render } from 'react-dom';
 import { fetchPublishableKey } from '../helper';
 import { async } from '@firebase/util';
+import { API_URL } from '../Config';
 
+import {GooglePayButton, useGooglePay} from '@stripe/stripe-react-native';
 
 const Services = ({navigation}) => {
 
+  const {
+    isGooglePaySupported,
+    initGooglePay,
+    presentGooglePay,
+  } = useGooglePay();
+
+  const {confirmPayment, loading} = useConfirmPayment()
+  const [name, setName] = useState('');
 
   const [publishableKey, setPublishableKey] = useState('');
-  useEffect( () => {
-    async function init() {
-      const publishableKey = await fetchPublishableKey()
-      if(publishableKey) {
-        setPublishableKey(publishableKey)
-      }
+
+  React.useEffect(() => {
+    init();
+  }, []);
+
+  const init = async () => {
+    const publishableKey = await fetchPublishableKey()
+    if(publishableKey) {
+      setPublishableKey(publishableKey)
     }
-  })
+  }
+
+  const fetchPaymentIntentClientSecret = async () => {
+    // Fetch payment intent created on the server, see above
+    console.log("key", publishableKey)
+    Alert.alert('Entered Client Secret')
+    const response = await fetch(`${API_URL}/create-payment-intent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        currency: 'usd',
+      }),
+    });
+    const { clientSecret } = await response.json();
+   
+    return clientSecret;
+  };
+
+  const pay = async () => {
+    Alert.alert('Entered Pay Method')
+    const clientSecret = await fetchPaymentIntentClientSecret();
+   // Need to correct Fetch
+
+    const { error } = await presentGooglePay({
+      clientSecret,
+      forSetupIntent: false,
+    });
+
+    if (error) {
+      Alert.alert(error.code, error.message);
+      // Update UI to prompt user to retry payment (and possibly another payment method)
+      return;
+    }
+    Alert.alert('Success', 'The payment was confirmed successfully.');
+  };
 
   const PullData = async () => {
     const myDoc = collection(db, 'Company Info')
@@ -59,49 +108,71 @@ console.log("Document written with ID: ", docRef.id);
   }
 
   const payment = async () => {
-    const response = await fetch()
-  }
+    Alert.alert('Entered')
+    
+    const response = await fetch('${API_URL}/create-payment-intent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        PaymentMethodType: 'card',
+        currnecy: 'usd'
+      })
+    })
+    
+    Alert.alert('Responded')
+    const {clientSecret} = await response.json()
 
-  const PullUserData = async () => {
-    const myDoc = collection(db, "Profile Images")
-    const snapShot = await getDocs(myDoc);
-    const snapList = snapShot.docs.map(doc => doc.data());
-    setImage(snapList)
-  }
+    const {error, paymentIntent} = await confirmPayment(clientSecret, {
+      type: 'Card',
+      billingDetails: {name}
+    })
 
-    //Call when component is rendered
-    useEffect(() => {
-      PullData();
-    }, []);
-
-
-    const renderItem = ({ item }) => {
-      return(
-        <View>
-           <Image style = {styles.profileCar} source = {{imageUrl}}/>
-           <Image style = {styles.profileCar} source = {{imagePic}}/>
-
-          <Image>{item.url}</Image>
-          <Text>{item.eventPic}</Text>
-          <Text>{item.name}</Text>
-          <Text>{item.city}</Text>
-          <Text>{item.state}</Text>
-          <Text>{item.address}</Text>
-          <Text>{item.description}</Text>
-          <Text>{item.link}</Text>
-          <Text>{item.username}</Text>
-        </View>
-      )
+    if(error) {
+      Alert.alert("Error Code: ${error.code} ", error.message)
+    }else if (paymentIntent) {
+      Alert.alert("Success", 'Payment sucessful: ${paymentIntent.id}')
     }
+
+  }
+
+    const paymentIntentMethod = async () => {
+    const {paymentIntent} = await stripe.paymentIntents.create({
+      amount: 1099,
+      currency: 'usd',
+      payment_method_types: ['card'],
+    });
+  }
 
     return (
       <StripeProvider  publishableKey={publishableKey}>
-        <View>
+        <View style= {styles.container}>
+
+          <View>
           <Text>Credit Card</Text>
-          <CardField style = {styles.cardField} />
+          <TextInput style = {styles.userName}
+          onChangeText={setName}>Insert First and Last Name</TextInput>
+          </View>
+
+          <CardField
+          placeholder={{
+            nummber: 'Insert Number 1234'
+          }} 
+          style = {styles.cardField} 
+          />
+
           <Button
           title = "Pay Now"
-          onPress={payment}></Button>
+          onPress={payment} disabled= {loading}></Button>
+
+    
+        </View>
+
+        <View >
+          <Button
+            title = 'Pay'
+            onPress={pay} ></Button>
         </View>
       </StripeProvider>
        
@@ -121,6 +192,10 @@ console.log("Document written with ID: ", docRef.id);
         width: '100%',
         height: 50,
         marginTop: 20
+    },
+    userName: {
+      backgroundColor: 'gray',
+      color: 'black'
     },
     headerView: { 
      backgroundColor: '#C4C4C4'

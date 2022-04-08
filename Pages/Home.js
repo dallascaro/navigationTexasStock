@@ -24,15 +24,23 @@ const Home = ({ navigation }) => {
         email,
         password,
       );
-      const {uid} = credential;
-      console.log(uid)
+      const uid = credential.user.uid;
+      console.log("User ID", uid)
       // your data here (dont forget to store the uid on the document)
       const user = {
         email: email,
         user_id: uid,
       };
       console.log(user)
-      await firestore().collection('Users').doc(uid).set(user);
+      //await firestore().collection('UserIDs').doc(uid).set(user);
+
+      const docRef = await addDoc(collection(db, "UserIDs"), {
+        email: email,
+        user_id: uid,
+      });
+
+      console.log("Document written with ID: ", docRef.id);
+
     } catch {
       console.log("Didnt add to database")
     }
@@ -120,14 +128,15 @@ const Home = ({ navigation }) => {
             color='#D8232F'
             onPress={forgotPassword}
           />
+ 
+        </View>
 
-        <Button style = {styles.buttonBorder}
+        <View  style = {styles.BussinessLogin}>
+          <Button style = {styles.buttonBorder}
             title="Bussiness Login"
             color='#D8232F'
             onPress={() => navigation.navigate("BussHome")}
           />
-         
-  
         </View>
   
         <View style = {styles.loginButton}>
@@ -267,8 +276,8 @@ const styles = StyleSheet.create({
 
   signUpLogin: {
    flex: 1,
-   marginTop: 200,
-   marginBottom: 55
+   marginTop: 230,
+   marginBottom: 70
   },
   loginInput: {
     backgroundColor: '#C9C9C9',
@@ -277,16 +286,20 @@ const styles = StyleSheet.create({
     width: 200,
   },
   loginButton: {
-   flex: .5,
+   flex: .8,
    flexDirection: 'row',
    justifyContent: 'space-between',
-   paddingTop: 10
+   paddingTop: 30
   },
   signUpButtonView: {
   paddingRight: 20
   },
   forgotPassButtonView : {
      
+  },
+  BussinessLogin: {
+   marginTop: 23,
+   width: 200,
   },
   localEventsInput: {
     backgroundColor: '#EFEEEE',
@@ -323,7 +336,7 @@ const styles = StyleSheet.create({
   copyRight: {
     color: 'white',
     fontSize: 20,
-    marginTop: 80,
+    marginTop: 50,
    marginLeft: 10
   }
 });

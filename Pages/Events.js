@@ -5,9 +5,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-//import ScrollPicker from 'react-native-wheel-scrollview-picker';
 //import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native-gesture-handler';
+
+import RNPickerSelect from 'react-native-picker-select';
 
 import { db, writeUserData } from "../firebase";
 import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore/lite";
@@ -19,6 +20,8 @@ const Events = () => {
   const[userReport, setReport] = React.useState("Report");
 
   const[userEvent, setEvent] = React.useState("Event");
+
+  const [location, setLocation] = React.useState("Location");
 
   const PullData = async () => {
     const ordersCol = collection(db, 'Users Comments')
@@ -82,9 +85,6 @@ console.log("Document written with ID: ", docRef.id);
   
     ])
   
-    const [city, setCity] = useState([
-      
-    ])
   
     const [modalVisible, setModalVisible] = useState(false);
   
@@ -127,9 +127,35 @@ console.log("Document written with ID: ", docRef.id);
           placeholder='Enter State Name'>
             State</TextInput>
           </View>
+
       </View>
-  
-  
+
+      <RNPickerSelect style={styles.scroller}
+            onValueChange={
+              (value) => setLocation(value)
+            }
+            items={[
+                { label: 'Midland, Texas', value: 'Midland Texas' },
+                { label: 'Odessa, Texas', value: 'Odessa Texas' },
+                { label: 'Andrews, Texas', value: 'Andrews Texas' },
+                { label: 'Monahans, Texas', value: 'Monahans Texas' },
+                { label: 'Big Spring, Texas', value: 'Big Spring Texas' },
+                { label: 'Fort Stockton, Texas', value: 'Fort Stockton Texas' },
+                { label: 'El Paso, Texas', value: 'El Paso Texas' },
+                { label: 'Seminole, Texas', value: 'Seminole Texas' },
+                { label: 'San Angelo, Texas', value: 'San Angelo Texas' },
+                { label: 'Abilene, Texas', value: 'Abilene Texas' },
+                { label: 'Amarillo, Texas', value: 'Amarillo Texas' },
+                { label: 'San Antonio, Texas', value: 'San Antonio Texas' },
+                { label: 'Austin, Texas', value: 'Austin Texas' },
+                { label: 'Houston, Texas', value: 'Houston Texas' },
+                { label: 'Dallas, Texas', value: 'Dallas Texas' },
+                { label: 'Fort Worth, Texas', value: 'Fort Worth Texas' },
+                { label: 'Corpus Christi, Texas', value: 'Corpus Christi Texas' },
+            ]}
+        />
+
+        <Text>{location}</Text>
   
       <View style = {styles.picContentView}>
           <ScrollView>
@@ -409,6 +435,10 @@ console.log("Document written with ID: ", docRef.id);
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    scroller: {
+      marginBottom: 100,
+      color: 'black'
     },
     goingButton: {
       backgroundColor: '#D8232F',

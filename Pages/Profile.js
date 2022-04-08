@@ -21,61 +21,13 @@ import DocumentPicker, {
   types,
 } from 'react-native-document-picker'
 
+
+
 const Profile = ({navigation}) => {
 
   const [eventList, setEventList] = useState([]);
-  const [profileImage, setImage] = useState([]);
+  const [userEmail, setEmail] = useState([]);
 
-  
-  const [singleFile, setSingleFile] = useState('');
-
-  const list = [];
-
-  const events = [];
-
-  const [imageUrl, setImageUrl] = useState([]);
-
-  const [imagePic, setImagePic] = useState([]);
-
-  // Download file
-const profilePicture = getDownloadURL(jeremyPic).then((x) => {
-  setImageUrl(x);
-  console.log(imageUrl);
-
-})
-
-const selectOneFile = async () => {
-  //Opening Document Picker for selection of one file
-  try {
-    const res = await DocumentPicker.pick({
-      type: [DocumentPicker.types.allFiles],
-      //There can me more options as well
-      // DocumentPicker.types.allFiles
-       type : [DocumentPicker.types.images]
-      // DocumentPicker.types.plainText
-      // DocumentPicker.types.audio
-      // DocumentPicker.types.pdf
-    });
-    //Printing the log realted to the file
-    console.log('res : ' + JSON.stringify(res));
-    console.log('URI : ' + res.uri);
-    console.log('Type : ' + res.type);
-    console.log('File Name : ' + res.name);
-    console.log('File Size : ' + res.size);
-    //Setting the state to show single file attributes
-    setSingleFile(res);
-  } catch (err) {
-    //Handling any exception (If any)
-    if (DocumentPicker.isCancel(err)) {
-      //If user canceled the document selection
-      alert('Canceled from single doc picker');
-    } else {
-      //For Unknown Error
-      alert('Unknown Error: ' + JSON.stringify(err));
-      throw err;
-    }
-  }
-};
 
   const PullData = async () => {
     const myDoc = collection(db, 'Users Events')
@@ -84,21 +36,12 @@ const selectOneFile = async () => {
     setEventList(snapList)
   }
 
-  const userProfile = async () => { 
-    // Add a new document with a generated id.
-  const docRef = await addDoc(collection(db, "Profile Images"), {
-  url: imageUrl
-});
-
-console.log("Document written with ID: ", docRef.id);
-
-  }
-
-  const PullUserData = async () => {
-    const myDoc = collection(db, "Profile Images")
+  const PullUserEmail = async () => {
+    const myDoc = collection(db, "UserIDs")
     const snapShot = await getDocs(myDoc);
     const snapList = snapShot.docs.map(doc => doc.data());
-    setImage(snapList)
+    setEmail(snapList)
+    console.log(snapList);
   }
 
 
@@ -107,11 +50,18 @@ console.log("Document written with ID: ", docRef.id);
       PullData();
     }, []);
 
+    const renderUserEmail = ({ item }) => {
+      return(
+        <View>
+          <Text>{item.email}</Text>
+          <Text>{item.user_id}</Text>
+        </View>
+      )
+    }
+
     const renderItem = ({ item }) => {
       return(
         <View>
-           <Image style = {styles.profileCar} source = {{imageUrl}}/>
-           <Image style = {styles.profileCar} source = {{imagePic}}/>
 
           <Image>{item.url}</Image>
           <Text>{item.eventPic}</Text>
@@ -133,54 +83,24 @@ console.log("Document written with ID: ", docRef.id);
         <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
         <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-        <Image style = {styles.profileImage} source = {imageUrl}/>
-
-        {/*To show single file attribute*/}
-        <TouchableOpacity
-          activeOpacity={0.5}
-          style={styles.buttonStyle}
-          onPress={selectOneFile}>
-          {/*Single file selection button*/}
-          <Text style={{marginRight: 10, fontSize: 19}}>
-            Click here to pick one file
-          </Text>
-          <Image
-            source={{
-              uri: 'https://img.icons8.com/offices/40/000000/attach.png',
-            }}
-            style={styles.imageIconStyle}
-          />
-        </TouchableOpacity>
-        {/*Showing the data of selected Single file*/}
-        <Text style={styles.textStyle}>
-          File Name: {singleFile.name ? singleFile.name : ''}
-          {'\n'}
-          Type: {singleFile.type ? singleFile.type : ''}
-          {'\n'}
-          File Size: {singleFile.size ? singleFile.size : ''}
-          {'\n'}
-          URI: {singleFile.uri ? singleFile.uri : ''}
-          {'\n'}
-        </Text>
-        <View
-          style={{
-            backgroundColor: 'grey',
-            height: 2,
-            margin: 10
-          }} />
-
-
+        
+        <View>
+    
+        </View>
+        <ScrollView>
+        <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {userEmail}
+              renderItem = {renderUserEmail}
+              />
+        </ScrollView>
         <Button
-                    title="User!"
+                    title="UserData!"
                     color='#17E217'
-                    onPress={userProfile}
+                    onPress={PullUserEmail}
                     
                   />
-                 
-            <Text>User Name</Text>
-            <Text>Attending</Text>
-          <Text>This is the content for the first page</Text>
-         
+        <Text>Attending</Text>
+        
         </View>
         
         <ScrollView style = {styles.eventDetails}>
@@ -265,6 +185,9 @@ console.log("Document written with ID: ", docRef.id);
     pagerView: {
       flex: 1,
      
+    },
+    userInfo: {
+
     },
     headBanner: {
       flex: 1,
