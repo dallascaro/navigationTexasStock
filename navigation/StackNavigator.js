@@ -7,6 +7,7 @@ import Services from "../Pages/Services";
 import Settings from "../Pages/Settings";
 import CreateEvent from "../Pages/CreateEvent";
 import CreateBrand from "../Pages/CreateBrand";
+import Comments from "../Pages/Comments";
 import BussHome from "../Pages/BussHome";
 import BussProfile from "../Pages/BussProfile";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -37,6 +38,7 @@ const EventsStackNavigator = () => {
     return (
       <Stack.Navigator screenOptions={screenOptionStyle}>
         <Stack.Screen name="Events" component={Events} options={{headerShown: false}} />
+        <Stack.Screen name = "Comments" component={Comments} options={{headerShown: false}} />
       </Stack.Navigator>
     );
   };

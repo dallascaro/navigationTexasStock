@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableOpacity} from 'react-native';
+import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableHighlight} from 'react-native';
 //import {Picker} from '@react-native-picker/picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -20,12 +20,15 @@ import DocumentPicker, {
   isInProgress,
   types,
 } from 'react-native-document-picker'
+import { async } from '@firebase/util';
 
 
 
 const Profile = ({navigation}) => {
 
   const [eventList, setEventList] = useState([]);
+  const [goingList, setGoingList] = useState([]);
+  const [interestedList, setInterestedList] = useState([]);
   const [userEmail, setEmail] = useState([]);
 
 
@@ -34,6 +37,16 @@ const Profile = ({navigation}) => {
     const snapShot = await getDocs(myDoc);
     const snapList = snapShot.docs.map(doc => doc.data());
     setEventList(snapList)
+
+    const goingMyDoc = collection(db, 'Users Going Events')
+    const goingSnapShot = await getDocs(goingMyDoc);
+    const goingSnapList = goingSnapShot.docs.map(doc => doc.data());
+    setGoingList(goingSnapList)
+
+    const intestedMyDoc = collection(db, 'Users Intersted Events')
+    const intestedSnapShot = await getDocs(intestedMyDoc);
+    const interestedSnapList = intestedSnapShot.docs.map(doc => doc.data());
+    setInterestedList(interestedSnapList)
   }
 
   const PullUserEmail = async () => {
@@ -59,19 +72,80 @@ const Profile = ({navigation}) => {
       )
     }
 
+    const onShare = async () => {
+      try {
+        const result = await Share.share({
+          message:
+            'Check out this cool event!',
+        });
+        if (result.action === Share.sharedAction) {
+          if (result.activityType) {
+            // shared with activity type of result.activityType
+          } else {
+            // shared
+          }
+        } else if (result.action === Share.dismissedAction) {
+          // dismissed
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    const interestedInEvent = async () => { 
+      // Add a new document with a generated id.
+    const docRef = await addDoc(collection(db, "Users Interested Events"), {
+    username: "Jeremy",
+    event: userEvent
+  });
+  
+  console.log("Document written with ID: ", docRef.id);
+  
+    }
+
     const renderItem = ({ item }) => {
       return(
         <View>
 
           <Image>{item.url}</Image>
           <Text>{item.eventPic}</Text>
-          <Text>{item.city}</Text>
-          <Text>{item.date}</Text>
-          <Text>{item.description}</Text>
-          <Text>{item.state}</Text>
-          <Text>{item.time}</Text>
-          <Text>{item.title}</Text>
-          <Text>{item.username}</Text>
+
+          <View  style = {styles.eventRender}>
+          <Text style = {styles.eventText}>{item.title}</Text>
+          </View>
+
+          <View style = {styles.eventRender}>
+            <Text style = {styles.eventText}>{item.date}</Text>
+            <Text style = {styles.eventText}>{item.time}</Text>
+          </View>
+         
+          <View style = {styles.eventRender}>
+            <Text style = {styles.eventText}>{item.address}</Text>
+            <Text style = {styles.eventText}>{item.city}</Text>
+            <Text style = {styles.eventText}>{item.state}</Text>
+          </View>
+
+          <View style = {styles.eventRender}>
+            <Text style = {styles.eventText}>{item.description}</Text>
+            <Text style = {styles.eventText}>{item.username}</Text>
+          </View>
+
+          <View style = {styles.eventButton}>
+
+          <TouchableHighlight onPress={interestedInEvent}>
+                    <View style={styles.interestedButton}>
+                      <Text style={styles.buttonText}>Interested</Text>
+                    </View>
+                  </TouchableHighlight>
+
+                  <TouchableHighlight onPress={onShare}>
+                    <View style={styles.shareButton}>
+                      <Text style={styles.buttonText}>Share Event!</Text>
+                    </View>
+                  </TouchableHighlight>
+
+              </View>
+
         </View>
       )
     }
@@ -84,9 +158,6 @@ const Profile = ({navigation}) => {
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
         <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
         
-        <View>
-    
-        </View>
         <ScrollView>
         <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
               data = {userEmail}
@@ -106,7 +177,7 @@ const Profile = ({navigation}) => {
         <ScrollView style = {styles.eventDetails}>
           <View>
             <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-              data = {eventList}
+              data = {goingList}
               renderItem = {renderItem}
               />
           </View>
@@ -118,15 +189,19 @@ const Profile = ({navigation}) => {
       <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
         <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-            <Text>User Name</Text>
+        <ScrollView>
+        <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {userEmail}
+              renderItem = {renderUserEmail}
+              />
+        </ScrollView>
             <Text>Interested</Text>
-        <Text>This is the content for the second page</Text>
         </View>
 
         <ScrollView style = {styles.eventDetails}>
           <View>
             <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-              data = {eventList}
+              data = {interestedList}
               renderItem = {renderItem}
               />
           </View>
@@ -140,9 +215,12 @@ const Profile = ({navigation}) => {
       <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
         <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-            <Text>User Name</Text>
-            <Text>My Events</Text>
-        <Text>This is the content for the second page</Text>
+        <ScrollView>
+        <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {userEmail}
+              renderItem = {renderUserEmail}
+              />
+        </ScrollView>
         </View>
 
         
@@ -189,6 +267,9 @@ const Profile = ({navigation}) => {
     userInfo: {
 
     },
+    eventRender: {
+      flexDirection: 'row'
+    },
     headBanner: {
       flex: 1,
       width: 400,
@@ -204,6 +285,16 @@ const Profile = ({navigation}) => {
       width: 400,
       backgroundColor: '#C4C4C4',
       flexDirection: 'row'
+    },
+    interestedButton: {
+      backgroundColor: '#FFFF00',
+      height: 30,
+      borderRadius: 10,
+    },
+    shareButton: {
+      backgroundColor: '#00FF00',
+      height: 30,
+      borderRadius: 10
     },
     companyName: {
       color: 'white',
@@ -230,7 +321,8 @@ const Profile = ({navigation}) => {
     eventText: {
       fontWeight: "bold",
       fontSize: 18,
-      fontFamily: 'sans-serif'
+      fontFamily: 'sans-serif',
+      marginRight: 5
     },
     eventsProfilePost: {
       flexDirection: 'row'

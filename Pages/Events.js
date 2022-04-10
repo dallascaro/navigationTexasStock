@@ -13,7 +13,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import { db, writeUserData } from "../firebase";
 import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore/lite";
 
-const Events = () => {
+const Events = ({navigation}) => {
 
   const[userComment, setComment] = React.useState("Comment");
 
@@ -23,12 +23,22 @@ const Events = () => {
 
   const [location, setLocation] = React.useState("Location");
 
+  const [userEmail, setEmail] = useState([]);
+
   const PullData = async () => {
     const ordersCol = collection(db, 'Users Comments')
     const ordersSnapshot = await getDocs(ordersCol)
     const orderList = ordersSnapshot.docs.map(doc => doc.data());
 
     console.log(orderList)
+  }
+
+  const PullUserEmail = async () => {
+    const myDoc = collection(db, "UserIDs")
+    const snapShot = await getDocs(myDoc);
+    const snapList = snapShot.docs.map(doc => doc.data());
+    setEmail(snapList)
+    console.log(snapList);
   }
 
   const PostData = async () => { 
@@ -214,9 +224,15 @@ console.log("Document written with ID: ", docRef.id);
                 </TextInput>
 
                 <Button
-                    title="Comment!"
+                    title="Submit Comment!"
                     color='#D8232F'
                     onPress={PostData}
+                  />
+
+                <Button
+                    title="Comment!"
+                    color='#D8232F'
+                    onPress={() => navigation.navigate("Comments")}
                   />
 
          
@@ -301,10 +317,17 @@ console.log("Document written with ID: ", docRef.id);
                 >Enter Comment
                 </TextInput>
 
+              
+                <Button
+                    title="Submit Comment!"
+                    color='#D8232F'
+                    onPress={PostData}
+                  />
+
                 <Button
                     title="Comment!"
                     color='#D8232F'
-                    onPress={PostData}
+                    onPress={() => navigation.navigate("Comments")}
                   />
                
                 <View style = {styles.eventButton}>
@@ -388,11 +411,19 @@ console.log("Document written with ID: ", docRef.id);
                 >Enter Comment
                 </TextInput>
 
+              
                 <Button
-                    title="Comment!"
+                    title="Submit Comment!"
                     color='#D8232F'
                     onPress={PostData}
                   />
+
+                <Button
+                    title="Comment!"
+                    color='#D8232F'
+                    onPress={() => navigation.navigate("Comments")}
+                  />
+
                   
               
                 <View style = {styles.eventButton}>
