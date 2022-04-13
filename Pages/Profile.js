@@ -24,6 +24,7 @@ import { async } from '@firebase/util';
 
 import ImagePicker from 'react-native-image-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { signOut } from 'firebase/auth';
 
 const Profile = ({navigation}) => {
 
@@ -45,6 +46,8 @@ const Profile = ({navigation}) => {
 
   const [imageUrl, setImageUrl] = useState(undefined);
 
+  const [currentDate, setCurrentDate] = useState('');
+
   const options = {
     title: 'Select Image',
     storageOptions: {
@@ -52,6 +55,8 @@ const Profile = ({navigation}) => {
       path: 'images'
     }
   };
+
+ 
 
   const PullData = async () => {
     const myDoc = collection(db, 'Users Events')
@@ -68,6 +73,15 @@ const Profile = ({navigation}) => {
     const intestedSnapShot = await getDocs(intestedMyDoc);
     const interestedSnapList = intestedSnapShot.docs.map(doc => doc.data());
     setInterestedList(interestedSnapList)
+  }
+
+  const SignOut = async () => {
+    const docRef =  addDoc(collection(db, "User SignOut"), {
+      email: userEmail,
+      time: currentDate,
+      signedIn: 'no'
+    });
+    navigation.navigate("Home")
   }
 
   const PullUserEmail = async () => {
@@ -93,6 +107,16 @@ console.log("Document written with ID: ", docRef.id);
     useEffect(() => {
       PullData();
       PullUserEmail();
+      var date = new Date().getDate(); //Current Date
+      var month = new Date().getMonth() + 1; //Current Month
+      var year = new Date().getFullYear(); //Current Year
+      var hours = new Date().getHours(); //Current Hours
+      var min = new Date().getMinutes(); //Current Minutes
+      var sec = new Date().getSeconds(); //Current Seconds
+      setCurrentDate(
+        date + '/' + month + '/' + year 
+        + ' ' + hours + ':' + min + ':' + sec
+      );
     }, []);
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -271,6 +295,12 @@ console.log("Document written with ID: ", docRef.id);
               renderItem = {renderUserEmail}
               />
         </ScrollView>
+
+        <Button
+                    title="Sign Out!"
+                    color='#D8232F'
+                    onPress={SignOut}
+                  />
        
         <Text style = {styles.pageName}>Attending</Text>
         
