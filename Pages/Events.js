@@ -23,6 +23,8 @@ const Events = ({navigation}) => {
 
   const [location, setLocation] = React.useState("Location");
 
+  const [locations, setLocations] = React.useState("Locations");
+
   const [userEmail, setEmail] = useState([]);
 
   const PullData = async () => {
@@ -38,6 +40,14 @@ const Events = ({navigation}) => {
     const snapShot = await getDocs(myDoc);
     const snapList = snapShot.docs.map(doc => doc.data());
     setEmail(snapList)
+    console.log(snapList);
+  }
+
+  const PullLocations= async () => {
+    const myDoc = collection(db, "Locations")
+    const snapShot = await getDocs(myDoc);
+    const snapList = snapShot.docs.map(doc => doc.data());
+    setLocations(snapList)
     console.log(snapList);
   }
 
@@ -89,12 +99,13 @@ console.log("Document written with ID: ", docRef.id);
 
   }
 
-  
+ 
 
-    const [state, setState] = useState([
-  
-    ])
-  
+   //Call when component is rendered
+   useEffect(() => {
+    PullLocations();
+  }, []);
+
   
     const [modalVisible, setModalVisible] = useState(false);
   
@@ -191,6 +202,7 @@ console.log("Document written with ID: ", docRef.id);
                 >
                 <View style={styles.centeredView}>
                   <View style={styles.modalView}>
+                  
                     <Text style={styles.modalText}>Enter Why this content is being reported</Text>
                       <TextInput 
                        onChangeText = {setReport}>Enter Text</TextInput>

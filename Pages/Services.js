@@ -30,6 +30,8 @@ import { API_URL } from '../Config';
 
 import {GooglePayButton, useGooglePay} from '@stripe/stripe-react-native';
 
+import { GooglePay } from 'react-native-google-pay';
+
 const Services = ({navigation}) => {
 
   const {
@@ -38,10 +40,17 @@ const Services = ({navigation}) => {
     presentGooglePay,
   } = useGooglePay();
 
+  const allowedCardNetworks = ['VISA', 'MASTERCARD'];
+const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
+
   const {confirmPayment, loading} = useConfirmPayment()
   const [name, setName] = useState('');
 
   const [publishableKey, setPublishableKey] = useState('');
+
+  // Set the environment before the payment request
+//GooglePay.setEnvironment(GooglePay.ENVIRONMENT_TEST);
+
 
   React.useEffect(() => {
     init();
@@ -53,6 +62,32 @@ const Services = ({navigation}) => {
       setPublishableKey(publishableKey)
     }
   }
+
+  const requestData = {
+    cardPaymentMethod: {
+      tokenizationSpecification: {
+        type: 'PAYMENT_GATEWAY',
+        // stripe (see Example):
+        gateway: 'stripe',
+        gatewayMerchantId: '',
+        stripe: {
+          publishableKey: 'pk_test_TYooMQauvdEDq54NiTphI7jx',
+          version: '2018-11-08',
+        },
+        // other:
+        gateway: 'example',
+        gatewayMerchantId: 'exampleGatewayMerchantId',
+      },
+      allowedCardNetworks,
+      allowedCardAuthMethods,
+    },
+    transaction: {
+      totalPrice: '10',
+      totalPriceStatus: 'FINAL',
+      currencyCode: 'USD',
+    },
+    merchantName: 'Example Merchant',
+  };
 
   const fetchPaymentIntentClientSecret = async () => {
     // Fetch payment intent created on the server, see above
@@ -137,15 +172,17 @@ console.log("Document written with ID: ", docRef.id);
 
   }
 
-    const paymentIntentMethod = async () => {
-    const {paymentIntent} = await stripe.paymentIntents.create({
-      amount: 1099,
-      currency: 'usd',
-      payment_method_types: ['card'],
-    });
-  }
+  const paymentIntent = async () => {
+
+  const {paymentIntent} = await stripe.paymentIntents.create({
+    amount: 500,
+    currency: 'gbp',
+    payment_method: 'pm_card_visa',
+  });
+}
 
     return (
+      
       <StripeProvider  publishableKey={publishableKey}>
         <View style= {styles.container}>
 

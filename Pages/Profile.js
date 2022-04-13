@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableHighlight} from 'react-native';
+import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableHighlight, TouchableOpacity} from 'react-native';
 //import {Picker} from '@react-native-picker/picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,7 +11,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
 import {getDownloadURL} from "firebase/storage";
-import { db, pathReference2, profilePicRef, jeremyPic} from "../firebase";
+import { db, pathReference2, profilePicRef, jeremyPic, storage} from "../firebase";
 import { collection, getDocs, addDoc, doc } from "firebase/firestore/lite";
 // To pick the file from local file system
 import DocumentPicker, {
@@ -22,15 +22,36 @@ import DocumentPicker, {
 } from 'react-native-document-picker'
 import { async } from '@firebase/util';
 
-
+import ImagePicker from 'react-native-image-picker';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 const Profile = ({navigation}) => {
+
+  
+  const[userComment, setComment] = React.useState("Comment");
+
+  const[userReport, setReport] = React.useState("Report");
+
+  const state = {
+    imgSource: ''
+  };
+
+  const [imageSource, setImageSource] = useState(undefined);
 
   const [eventList, setEventList] = useState([]);
   const [goingList, setGoingList] = useState([]);
   const [interestedList, setInterestedList] = useState([]);
   const [userEmail, setEmail] = useState([]);
 
+  const [imageUrl, setImageUrl] = useState(undefined);
+
+  const options = {
+    title: 'Select Image',
+    storageOptions: {
+      skipBackup: true,
+      path: 'images'
+    }
+  };
 
   const PullData = async () => {
     const myDoc = collection(db, 'Users Events')
@@ -57,11 +78,24 @@ const Profile = ({navigation}) => {
     console.log(snapList);
   }
 
+  const reportContent = async () => { 
+    // Add a new document with a generated id.
+  const docRef = await addDoc(collection(db, "Reported Events"), {
+  eventName: "Event",
+  user: userReport
+});
+
+console.log("Document written with ID: ", docRef.id);
+
+  }
 
     //Call when component is rendered
     useEffect(() => {
       PullData();
     }, []);
+
+    const [modalVisible, setModalVisible] = useState(false);
+    
 
     const renderUserEmail = ({ item }) => {
       return(
@@ -103,12 +137,73 @@ const Profile = ({navigation}) => {
   
     }
 
-    const renderItem = ({ item }) => {
-      return(
-        <View>
+    const pickImage = () => {
+      ImagePicker.showImagePicker(options, response => {
+        if (response.didCancel) {
+          alert('You cancelled image picker 😟');
+        } else if (response.error) {
+          alert('And error occured: ', response.error);
+        } else {
+          const source = { uri: response.uri };
+          this.setState({
+            imgSource: source
+          });
+        }
+      });
+    };
 
+    const renderItem = ({ item }) => {
+
+      
+      return(
+        <View style = {styles.eventsBackground}>
+        <Image style = {styles.carPics} source = {require('../assets/Cars/FordMustang.jpg')}/>
           <Image>{item.url}</Image>
           <Text>{item.eventPic}</Text>
+
+          <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                  setModalVisible(modalVisible);
+                  }}
+                >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                  <Text style = {styles.eventText}>{item.title}</Text>
+                  <Text style = {styles.eventText}>{item.date}</Text>
+                  <Text style = {styles.eventText}>{item.time}</Text>
+                  <Text style = {styles.eventText}>{item.username}</Text>
+                    <Text style={styles.modalText}>Enter Why this content is being reported</Text>
+                      <TextInput 
+                       onChangeText = {setReport}>Enter Text</TextInput>
+
+            <Pressable
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => setModalVisible(!modalVisible)}
+              >
+                   <Button
+                    title="Report!"
+                    color='#D8232F'
+                    onPress={reportContent}
+                  />
+                <Text style={styles.textStyle}>End Report</Text>
+              </Pressable>
+                    
+                  
+
+                  </View>
+                </View>
+              </Modal>
+
+              <Pressable
+                style={[styles.button, styles.buttonOpen]}
+                onPress={() => setModalVisible(true)}
+              >
+                <Text style={styles.textStyle}>Report Content</Text>
+               
+              </Pressable>
 
           <View  style = {styles.eventRender}>
           <Text style = {styles.eventText}>{item.title}</Text>
@@ -129,6 +224,13 @@ const Profile = ({navigation}) => {
             <Text style = {styles.eventText}>{item.description}</Text>
             <Text style = {styles.eventText}>{item.username}</Text>
           </View>
+
+          <Button
+                    title="Comment!"
+                    color='#D8232F'
+                    onPress={() => navigation.navigate("Comments")}
+                  />
+
 
           <View style = {styles.eventButton}>
 
@@ -195,8 +297,26 @@ const Profile = ({navigation}) => {
               renderItem = {renderUserEmail}
               />
         </ScrollView>
+
             <Text>Interested</Text>
+            <Button
+            title = "Select Picture"
+            onPress={launchCamera()}></Button>
         </View>
+
+        <TouchableOpacity style={styles.btn} onPress={pickImage}>
+          <View>
+            <Text style={styles.btnTxt}>Pick image</Text>
+          </View>
+        </TouchableOpacity>
+      
+        {imageSource ? (
+          <Image
+            source={imageSource}
+          />
+        ) : (
+          <Text>Select an Image!</Text>
+        )}
 
         <ScrollView style = {styles.eventDetails}>
           <View>
@@ -266,6 +386,9 @@ const Profile = ({navigation}) => {
     },
     userInfo: {
 
+    },
+    eventsBackground: {
+      backgroundColor: '#C4C4C4'
     },
     eventRender: {
       flexDirection: 'row'

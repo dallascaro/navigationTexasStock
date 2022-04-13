@@ -27,6 +27,8 @@
     "react-native": "0.64.3",
     "react-native-document-picker": "^8.0.0",
     "react-native-gesture-handler": "^2.2.0",
+    "react-native-google-pay": "^2.1.0",
+    "react-native-image-picker": "^4.7.3",
     "react-native-pager-view": "^5.4.9",
     "react-native-payments": "^0.8.4",
     "react-native-picker-select": "^8.0.4",

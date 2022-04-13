@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable} from 'react-native';
+import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, FlatList, ActivityIndicator, Share, Modal, Pressable} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -13,13 +13,13 @@ import { collection, getDocs, addDoc } from "firebase/firestore/lite";
 
 const CreateEvent = ({navigation}) => {
 
-  const[userName, setUserName] = React.useState("UserName");
   const[eventDate, setDate] = React.useState("Date");
   const[eventTime, setTime] = React.useState("Time");
   const[eventCity, setCity] = React.useState("City");
   const[eventState, setState] = React.useState("State");
   const[eventTitle, setTitle] = React.useState("Title");
   const[eventDescription, setDescription] = React.useState("Description");
+  const [userEmail, setEmail] = useState([]);
 
   const createEvent = async () => { 
     // Add a new document with a generated id.
@@ -42,14 +42,48 @@ console.log("Document written with ID: ", docRef.id);
 
   }
 
+  const PullUserEmail = async () => {
+    const myDoc = collection(db, "UserIDs")
+    const snapShot = await getDocs(myDoc);
+    const snapList = snapShot.docs.map(doc => doc.data());
+    setEmail(snapList)
+    console.log(snapList);
+  }
+
+  
+  const renderUserEmail = ({ item }) => {
+    return(
+      <View>
+        <Text>{item.email}</Text>
+        <Text>{item.user_id}</Text>
+      </View>
+    )
+  }
+
+
     return(
       <View  style = {styles.container}  >
 
         <View style = {styles.headComment}>
           <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-          <Text style = {styles.comment}>Username</Text>
-          <Text style = {styles.comment}>Create Event</Text>
+          <View>
+          <FlatList style = {{flex: 1, width: '70%', height: '100%'}}
+              data = {userEmail}
+              renderItem = {renderUserEmail}
+              />
+              
+          </View>
+
+          <View>
+         
+          </View>
+
         </View>
+
+        <View style = {styles.commenView}>
+        <Text style = {styles.comment}>Create Event</Text>
+        </View>
+       
 
         <View>
         <Image style = {styles.carPics} source = {require('../assets/Cars/FordMustang.jpg')}/>
@@ -104,6 +138,12 @@ console.log("Document written with ID: ", docRef.id);
             onPress={() => Alert.alert('Cancled Comment!')}
             />
           </View>
+          <Button
+                    title="UserData!"
+                    color='#17E217'
+                    onPress={PullUserEmail}
+                    
+                  />
         
           </View>
          
@@ -130,9 +170,13 @@ console.log("Document written with ID: ", docRef.id);
       paddingTop: 20
     },
     comment: {
-      paddingTop: 50,
+      width: 400,
+      marginLeft: 180,
       fontWeight: 'bold',
       fontSize: 18
+    },
+    commenView: {
+      backgroundColor: '#C4C4C4',
     },
     commentSection: {
       flex: 1,

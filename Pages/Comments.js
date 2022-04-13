@@ -134,7 +134,7 @@ console.log("Document written with ID: ", docRef.id);
       
             </View>
 
-            <View style = {styles.commentSectionTop}>
+<View style = {styles.commentSectionTop}>
 
 <View style = {styles.replieSections}>
 
@@ -146,12 +146,7 @@ console.log("Document written with ID: ", docRef.id);
       renderItem = {renderUserEmail}
       />
 </View>
-<ScrollView>
-<FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-      data = {userReplies}
-      renderItem = {renderComment}
-      />
-</ScrollView>
+
 <Modal
         animationType="slide"
         transparent={true}
@@ -187,62 +182,14 @@ console.log("Document written with ID: ", docRef.id);
   <Text style={styles.textStyle}>Reply</Text>
 </Pressable>
     </View>
-</View>
-
-<View style = {styles.commentSectionTop}>
-
-<View style = {styles.replieSections}>
-
-<Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-          
-<View>
-<FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-      data = {userEmail}
-      renderItem = {renderUserEmail}
-      />
-</View>
-<ScrollView>
+<ScrollView style = {styles.replies}>
 <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
       data = {userReplies}
       renderItem = {renderComment}
       />
 </ScrollView>
-<Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Content has been reported");
-          setModalVisible(!modalVisible);
-          }}
-        >
-  <View style={styles.centeredView}>
-    <View style={styles.modalView}>
-      <Text style={styles.modalText}>Type out reply</Text>
-      <TextInput
-      onChangeText = {setComment}>Enter Text</TextInput>
-      <Pressable
-        style={[styles.button, styles.buttonClose]}
-        onPress={() => setModalVisible(!modalVisible)}
-      >
-         <Button
-            title="Comment!"
-            color='#D8232F'
-            onPress={PostData}
-          />
-        <Text style={styles.textStyle}>Close Comment</Text>
-      </Pressable>
-    </View>
-  </View>
-</Modal>
-<Pressable
-  style={[styles.button, styles.buttonOpen]}
-  onPress={() => setModalVisible(true)}
->
-  <Text style={styles.textStyle}>Reply</Text>
-</Pressable>
-    </View>
 </View>
+
 
             <View style = {styles.commentSectionTop}>
 
@@ -257,13 +204,6 @@ console.log("Document written with ID: ", docRef.id);
               />
         </View>
 
-        <ScrollView>
-        <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-              data = {userReplies}
-              renderItem = {renderComment}
-              />
-        </ScrollView>
-        
         <Modal
                 animationType="slide"
                 transparent={true}
@@ -299,13 +239,74 @@ console.log("Document written with ID: ", docRef.id);
           <Text style={styles.textStyle}>Reply</Text>
         </Pressable>
             </View>
+              <ScrollView style = {styles.replies}>
+        <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {userReplies}
+              renderItem = {renderComment}
+              />
+        </ScrollView>
         </View>
 
+        <View style = {styles.commentSectionTop}>
+
+<View style = {styles.replieSections}>
+
+<Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
+
+<View>
+<FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+      data = {userEmail}
+      renderItem = {renderUserEmail}
+      />
+</View>
+
+<Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Content has been reported");
+          setModalVisible(!modalVisible);
+          }}
+        >
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <Text style={styles.modalText}>Type out reply</Text>
+      <TextInput
+      onChangeText = {setComment}>Enter Text</TextInput>
+      <Pressable
+        style={[styles.button, styles.buttonClose]}
+        onPress={() => setModalVisible(!modalVisible)}
+      >
+         <Button
+            title="Comment!"
+            color='#D8232F'
+            onPress={PostData}
+          />
+        <Text style={styles.textStyle}>Close Comment</Text>
+      </Pressable>
+    </View>
+  </View>
+</Modal>
+<Pressable
+  style={[styles.button, styles.buttonOpen]}
+  onPress={() => setModalVisible(true)}
+>
+  <Text style={styles.textStyle}>Reply</Text>
+</Pressable>
+    </View>
+      <ScrollView style = {styles.replies}>
+<FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+      data = {userReplies}
+      renderItem = {renderComment}
+      />
+</ScrollView>
+</View>
+
         </View>
 
-       
-
-        <Button
+      <View style={styles.buttonView}>
+      <Button
                     title="UserData!"
                     color='#17E217'
                     onPress={PullUserEmail}
@@ -318,6 +319,8 @@ console.log("Document written with ID: ", docRef.id);
                     onPress={PullUserComments}
                     
                   />
+      </View>
+       
       
       
       </View>
@@ -343,10 +346,18 @@ console.log("Document written with ID: ", docRef.id);
     userInfo: {
        
     },
+    comments: {
+      marginTop: 10
+    },
+    replies: {
+      marginLeft: 75
+    },
     replieSections: {
         flexDirection: 'row'
     },
-    
+    buttonView: {
+flexDirection: 'row'
+    },
     comment: {
       paddingTop: 50,
       paddingLeft: 20,

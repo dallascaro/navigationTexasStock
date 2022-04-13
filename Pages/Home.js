@@ -18,6 +18,16 @@ const Home = ({ navigation }) => {
   const[email, setEmail] = React.useState("Email");
   const[password, setPassword] = React.useState("Password");
 
+  const[user] = React.useState("User");
+
+  const[userEmail] = React.useState("User Email");
+  const[userId] =  React.useState("User ID");
+
+  const [time, setTime] =React.useState("Time");
+  const [date, setDate] =React.useState("Date");
+
+  const [currentDate, setCurrentDate] = useState('');
+
   const onRegister = async () => {
     try {
       const credential = await auth.createUserWithEmailAndPassword(
@@ -52,9 +62,14 @@ const Home = ({ navigation }) => {
     auth.createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
         // Signed in 
-        const user = userCredential.user;
+        user = userCredential.user;
         console.log('User Created In')
         // ...
+
+        const docRef =  addDoc(collection(db, "User SignIn"), {
+          email: email,
+          user_id: uid,
+        });
       })
       .catch((error) => {
         console.log('User failed to be created')
@@ -72,7 +87,7 @@ const Home = ({ navigation }) => {
     auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       // Signed in 
-      const user = userCredential.user;
+       user = userCredential.user;
       console.log('Signed In User')
       // ...
     })
@@ -83,11 +98,22 @@ const Home = ({ navigation }) => {
       console.log(errorCode)
       console.log(errorMessage)
       // ..
+      
+      const docRef =  addDoc(collection(db, "User SignIn"), {
+        email: email,
+        time: currentDate,
+        signedIn: 'yes'
+      });
+
+      console.log("Document written with ID: ", docRef.id);
+     
     });
 
     navigation.navigate("EventsT")
 
   }
+
+
   const forgotPassword = () => {
 
     console.log("reset email sent to " + email);
@@ -99,6 +125,19 @@ const Home = ({ navigation }) => {
             console.log(e);
         });
 };
+
+useEffect(() => {
+  var date = new Date().getDate(); //Current Date
+  var month = new Date().getMonth() + 1; //Current Month
+  var year = new Date().getFullYear(); //Current Year
+  var hours = new Date().getHours(); //Current Hours
+  var min = new Date().getMinutes(); //Current Minutes
+  var sec = new Date().getSeconds(); //Current Seconds
+  setCurrentDate(
+    date + '/' + month + '/' + year 
+    + ' ' + hours + ':' + min + ':' + sec
+  );
+}, []);
 
     return(
       <View style = {styles.container}>
