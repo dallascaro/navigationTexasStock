@@ -63,6 +63,12 @@ console.log("Document written with ID: ", docRef.id);
     console.log(snapList);
   }
 
+    //Call when component is rendered
+    useEffect(() => {
+      PullUserEmail();
+      PullUserComments();
+    }, []);
+
 
   const renderUserEmail = ({ item }) => {
      
@@ -304,23 +310,6 @@ console.log("Document written with ID: ", docRef.id);
 </View>
 
         </View>
-
-      <View style={styles.buttonView}>
-      <Button
-                    title="UserData!"
-                    color='#17E217'
-                    onPress={PullUserEmail}
-                    
-                  />
-
-<Button
-                    title="Comments!"
-                    color='#17E217'
-                    onPress={PullUserComments}
-                    
-                  />
-      </View>
-       
       
       
       </View>
@@ -345,6 +334,9 @@ console.log("Document written with ID: ", docRef.id);
     },
     userInfo: {
        
+    },
+    textStyle: {
+      fontWeight: 'bold'
     },
     comments: {
       marginTop: 10

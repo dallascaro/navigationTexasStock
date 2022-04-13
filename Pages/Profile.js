@@ -92,6 +92,7 @@ console.log("Document written with ID: ", docRef.id);
     //Call when component is rendered
     useEffect(() => {
       PullData();
+      PullUserEmail();
     }, []);
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -157,6 +158,10 @@ console.log("Document written with ID: ", docRef.id);
       
       return(
         <View style = {styles.eventsBackground}>
+          <View style = {styles.eventsProfilePost}>
+          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
+            <Text style = {styles. eventsUserName}>{item.username}</Text>
+          </View>
         <Image style = {styles.carPics} source = {require('../assets/Cars/FordMustang.jpg')}/>
           <Image>{item.url}</Image>
           <Text>{item.eventPic}</Text>
@@ -260,19 +265,14 @@ console.log("Document written with ID: ", docRef.id);
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
         <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
         
-        <ScrollView>
+        <ScrollView style = {styles.userInfo}>
         <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
               data = {userEmail}
               renderItem = {renderUserEmail}
               />
         </ScrollView>
-        <Button
-                    title="UserData!"
-                    color='#17E217'
-                    onPress={PullUserEmail}
-                    
-                  />
-        <Text>Attending</Text>
+       
+        <Text style = {styles.pageName}>Attending</Text>
         
         </View>
         
@@ -291,14 +291,14 @@ console.log("Document written with ID: ", docRef.id);
       <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
         <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-        <ScrollView>
+        <ScrollView style = {styles.userInfo}>
         <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
               data = {userEmail}
               renderItem = {renderUserEmail}
               />
         </ScrollView>
 
-            <Text>Interested</Text>
+            <Text  style = {styles.pageName}>Interested</Text>
             <Button
             title = "Select Picture"
             onPress={launchCamera()}></Button>
@@ -335,13 +335,17 @@ console.log("Document written with ID: ", docRef.id);
       <View style = {styles.headerView}>
         <Image style = {styles.profileCar} source = {require('../assets/Cars/FordMustang.jpg')}/>
         <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-        <ScrollView>
+        <ScrollView style = {styles.userInfo}>
         <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
               data = {userEmail}
               renderItem = {renderUserEmail}
               />
         </ScrollView>
+
+        <Text  style = {styles.pageName}>My Events</Text>
         </View>
+
+      
 
         
 
@@ -385,7 +389,12 @@ console.log("Document written with ID: ", docRef.id);
      
     },
     userInfo: {
-
+        marginLeft: 100,
+       
+    },
+    pageName: {
+      fontSize: 18,
+      fontWeight: 'bold'
     },
     eventsBackground: {
       backgroundColor: '#C4C4C4'

@@ -9,6 +9,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import Carousel from 'react-native-snap-carousel';
 import { async } from '@firebase/util';
 
+import RNPickerSelect from 'react-native-picker-select';
 
 const renderCompanies = async (item, index) => {
   return(
@@ -23,6 +24,7 @@ const renderCompanies = async (item, index) => {
     </TouchableOpacity>
   )
 }
+
 
 const Settings = () => {
 

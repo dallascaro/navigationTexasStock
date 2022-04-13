@@ -50,6 +50,11 @@ console.log("Document written with ID: ", docRef.id);
     console.log(snapList);
   }
 
+    //Call when component is rendered
+    useEffect(() => {
+      PullUserEmail();
+    }, []);
+
   
   const renderUserEmail = ({ item }) => {
     return(
@@ -138,12 +143,6 @@ console.log("Document written with ID: ", docRef.id);
             onPress={() => Alert.alert('Cancled Comment!')}
             />
           </View>
-          <Button
-                    title="UserData!"
-                    color='#17E217'
-                    onPress={PullUserEmail}
-                    
-                  />
         
           </View>
          

@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable,  TouchableHighlight} from 'react-native';
+import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, FlatList, Share, Modal, Pressable,  TouchableHighlight} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -27,20 +27,36 @@ const Events = ({navigation}) => {
 
   const [userEmail, setEmail] = useState([]);
 
-  const PullData = async () => {
-    const ordersCol = collection(db, 'Users Comments')
-    const ordersSnapshot = await getDocs(ordersCol)
-    const orderList = ordersSnapshot.docs.map(doc => doc.data());
+  const [eventList, setEventList] = useState([]);
+  const [goingList, setGoingList] = useState([]);
+  const [interestedList, setInterestedList] = useState([]);
 
-    console.log(orderList)
+   //Call when component is rendered
+   useEffect(() => {
+    PullData();
+    PullUserEmail();
+  }, []);
+
+  const renderUserEmail = ({ item }) => {
+    return(
+      <View>
+        <Text>{item.email}</Text>
+        <Text>{item.user_id}</Text>
+      </View>
+    )
   }
 
-  const PullUserEmail = async () => {
-    const myDoc = collection(db, "UserIDs")
+  const PullData = async () => {
+    const myDoc = collection(db, 'Users Events')
     const snapShot = await getDocs(myDoc);
     const snapList = snapShot.docs.map(doc => doc.data());
-    setEmail(snapList)
-    console.log(snapList);
+    setEventList(snapList)
+
+    const goingMyDoc = collection(db, 'Users Going Events')
+    const goingSnapShot = await getDocs(goingMyDoc);
+    const goingSnapList = goingSnapShot.docs.map(doc => doc.data());
+    setGoingList(goingSnapList)
+
   }
 
   const PullLocations= async () => {
@@ -51,19 +67,12 @@ const Events = ({navigation}) => {
     console.log(snapList);
   }
 
-  const PostData = async () => { 
-    // Add a new document with a generated id.
-  const docRef = await addDoc(collection(db, "Users Comments"), {
-  username: "newemail",
-  comment: userComment
-});
-const ordersCol = collection(db, 'Users Comments')
-    const ordersSnapshot = await getDocs(ordersCol)
-    const orderList = ordersSnapshot.docs.map(doc => doc.data());
-
-    console.log(orderList)
-console.log("Document written with ID: ", docRef.id);
-
+  const PullUserEmail = async () => {
+    const myDoc = collection(db, "UserIDs")
+    const snapShot = await getDocs(myDoc);
+    const snapList = snapShot.docs.map(doc => doc.data());
+    setEmail(snapList)
+    console.log(snapList);
   }
 
   const reportContent = async () => { 
@@ -99,13 +108,117 @@ console.log("Document written with ID: ", docRef.id);
 
   }
 
+
+  const renderItem = ({ item }) => {
+    return(
+      <View style = {styles.eventsBackground}>
+        <View style = {styles.eventsProfilePost}>
+        <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
+          <Text style = {styles. eventsUserName}>{item.username}</Text>
+        </View>
+      <Image style = {styles.carPics} source = {require('../assets/Cars/FordMustang.jpg')}/>
+        <Image>{item.url}</Image>
+        <Text>{item.eventPic}</Text>
+
+        <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => {
+                setModalVisible(modalVisible);
+                }}
+              >
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+               
+                <Text style = {styles.eventText}>{item.title}</Text>
+                <Text style = {styles.eventText}>{item.date}</Text>
+                <Text style = {styles.eventText}>{item.time}</Text>
+                
+                <Text style = {styles.eventText}>{item.username}</Text>
+                  <Text style={styles.modalText}>Enter Why this content is being reported</Text>
+                    <TextInput 
+                     onChangeText = {setReport}>Enter Text</TextInput>
+
+          <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+                 <Button
+                  title="Report!"
+                  color='#D8232F'
+                  onPress={reportContent}
+                />
+              <Text style={styles.textStyle}>End Report</Text>
+            </Pressable>
+                  
+                
+
+                </View>
+              </View>
+            </Modal>
+
+            <Pressable
+              style={[styles.button, styles.buttonOpen]}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text style={styles.textStyle}>Report Content</Text>
+             
+            </Pressable>
+
+        <View  style = {styles.eventRender}>
+        <Text style = {styles.eventText}>{item.title}</Text>
+        </View>
+
+        <View style = {styles.eventRender}>
+          <Text style = {styles.eventText}>{item.date}</Text>
+          <Text style = {styles.eventText}>{item.time}</Text>
+        </View>
+       
+        <View style = {styles.eventRender}>
+          <Text style = {styles.eventText}>{item.address}</Text>
+          <Text style = {styles.eventText}>{item.city}</Text>
+          <Text style = {styles.eventText}>{item.state}</Text>
+        </View>
+
+        <View style = {styles.eventRender}>
+          <Text style = {styles.eventText}>{item.description}</Text>
+          <Text style = {styles.eventText}>{item.username}</Text>
+        </View>
+
+        <Button
+                  title="Comment!"
+                  color='#D8232F'
+                  onPress={() => navigation.navigate("Comments")}
+                />
+
+
+        <View style = {styles.eventButton}>
+
+        <TouchableHighlight onPress={goingToEvent}>
+                  <View style={styles.goingButton}>
+                    <Text style={styles.buttonText}>Going To Event</Text>
+                  </View>
+                </TouchableHighlight>
+
+        <TouchableHighlight onPress={interestedInEvent}>
+                  <View style={styles.interestedButton}>
+                    <Text style={styles.buttonText}>Interested</Text>
+                  </View>
+                </TouchableHighlight>
+
+                <TouchableHighlight onPress={onShare}>
+                  <View style={styles.shareButton}>
+                    <Text style={styles.buttonText}>Share Event!</Text>
+                  </View>
+                </TouchableHighlight>
+
+            </View>
+
+      </View>
+    )
+  }
  
-
-   //Call when component is rendered
-   useEffect(() => {
-    PullLocations();
-  }, []);
-
   
     const [modalVisible, setModalVisible] = useState(false);
   
@@ -131,16 +244,18 @@ console.log("Document written with ID: ", docRef.id);
     
     return(
       <View  style = {styles.container}  >
-       <View style = {styles.headBannerEvents}>
-            <View style = {styles.companyNamePlacement}>
-            <Image style = {styles.Logo} source = {require('../assets/CompanyLogo/TXStockRally.jpg')} />
-            </View>
-      </View>
-  
-      <View style = {styles.eventBanner}>
+        <View style  = {styles.headBannerEvents}>
+          <View style = {styles.companyNamePlacement}>
+        <Image style = {styles.profileCar} source = {require('../assets/CompanyLogo/TXStockRally.jpg')}/>
+        </View>
+        </View>
+    
+        <View style = {styles.headerView}>
+       
+      <View >
         <Text style = {styles.eventName}>Local Events</Text>
-           
-           <View style = {styles.cityView}> 
+
+        <View style = {styles.cityView}> 
            <TextInput style = {styles.localEventsInput}
           placeholder='Enter City Name'>
             City</TextInput>
@@ -149,9 +264,7 @@ console.log("Document written with ID: ", docRef.id);
             State</TextInput>
           </View>
 
-      </View>
-
-      <RNPickerSelect style={styles.scroller}
+        <RNPickerSelect style={styles.scroller}
             onValueChange={
               (value) => setLocation(value)
             }
@@ -175,295 +288,23 @@ console.log("Document written with ID: ", docRef.id);
                 { label: 'Corpus Christi, Texas', value: 'Corpus Christi Texas' },
             ]}
         />
+          
+      </View>
 
-        <Text>{location}</Text>
-  
-      <View style = {styles.picContentView}>
-          <ScrollView>
-        <View>
-  
-          <View style = {styles.eventsProfilePost}>
-          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-            <Text style = {styles. eventsUserName}>User Name</Text>
+          <View style = {styles.locationView}>
+          <Text style = {styles.locationName}>{location}</Text>
           </View>
-  
-  
-              <Image style = {styles.carPics} source = {require('../assets/Cars/FordMustang.jpg')}/>
-              <ActivityIndicator style = {styles.carLoad}
-                size="large" color="#0000ff">
-              </ActivityIndicator>
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                  setModalVisible(modalVisible);
-                  }}
-                >
-                <View style={styles.centeredView}>
-                  <View style={styles.modalView}>
-                  
-                    <Text style={styles.modalText}>Enter Why this content is being reported</Text>
-                      <TextInput 
-                       onChangeText = {setReport}>Enter Text</TextInput>
-                    
-                    <Button
-                    title="Report!"
-                    color='#D8232F'
-                    onPress={reportContent}
-                  />
-
-                  </View>
-                </View>
-              </Modal>
-
-              <Pressable
-                style={[styles.button, styles.buttonOpen]}
-                onPress={() => setModalVisible(true)}
-              >
-                <Text style={styles.textStyle}>Report Content</Text>
-               
-              </Pressable>
-  
-              <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-
-                <TextInput
-                onChangeText = {setComment}
-                >Enter Comment
-                </TextInput>
-
-                <Button
-                    title="Submit Comment!"
-                    color='#D8232F'
-                    onPress={PostData}
-                  />
-
-                <Button
-                    title="Comment!"
-                    color='#D8232F'
-                    onPress={() => navigation.navigate("Comments")}
-                  />
-
-         
-              
-                <View style = {styles.eventButton}>
-
-                <TouchableHighlight onPress={goingToEvent}>
-                    <View style={styles.goingButton}>
-                      <Text style={styles.buttonText}>Going To Event</Text>
-                    </View>
-                  </TouchableHighlight>
-
-                <TouchableHighlight onPress={interestedInEvent}>
-                    <View style={styles.interestedButton}>
-                      <Text style={styles.buttonText}>Interested</Text>
-                    </View>
-                  </TouchableHighlight>
-
-                  <TouchableHighlight onPress={onShare}>
-                    <View style={styles.shareButton}>
-                      <Text style={styles.buttonText}>Share Event!</Text>
-                    </View>
-                  </TouchableHighlight>
-
-               
-                </View>
-              </View>
-        </View>
-  
-            <View>
-  
-            <View style = {styles.eventsProfilePost}>
-          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-            <Text style = {styles. eventsUserName}>User Name</Text>
+        
+        <ScrollView style = {styles.eventDetails}>
+          <View>
+            <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
+              data = {goingList}
+              renderItem = {renderItem}
+              />
           </View>
-  
-            <Image style = {styles.carPics} source = {require('../assets/Cars/DodgeChallenger.jpg')}/>
-            <ActivityIndicator style = {styles.carLoad}
-                size="large" color="#0000ff">
-              </ActivityIndicator>
-  
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                  Alert.alert("Content has been reported");
-                  setModalVisible(!modalVisible);
-                  }}
-                >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Enter Why this content is being reported</Text>
-              <TextInput>Enter Text</TextInput>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-               <Button
-                    title="Comment!"
-                    color='#D8232F'
-                    onPress={PostData}
-                  />
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
-        <Pressable
-          style={[styles.button, styles.buttonOpen]}
-          onPress={() => setModalVisible(true)}
-        >
-          <Text style={styles.textStyle}>Report Content</Text>
-        </Pressable>
-  
-            <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
 
-                <TextInput
-                onChangeText = {setComment}
-                >Enter Comment
-                </TextInput>
-
-              
-                <Button
-                    title="Submit Comment!"
-                    color='#D8232F'
-                    onPress={PostData}
-                  />
-
-                <Button
-                    title="Comment!"
-                    color='#D8232F'
-                    onPress={() => navigation.navigate("Comments")}
-                  />
-               
-                <View style = {styles.eventButton}>
-
-                <TouchableHighlight onPress={goingToEvent}>
-                    <View style={styles.goingButton}>
-                      <Text style={styles.buttonText}>Going To Event</Text>
-                    </View>
-                  </TouchableHighlight>
-
-                <TouchableHighlight onPress={interestedInEvent}>
-                    <View style={styles.interestedButton}>
-                      <Text style={styles.buttonText}>Interested</Text>
-                    </View>
-                  </TouchableHighlight>
-
-                  <TouchableHighlight onPress={onShare}>
-                    <View style={styles.shareButton}>
-                      <Text style={styles.buttonText}>Share Event!</Text>
-                    </View>
-                  </TouchableHighlight>
-
-               
-                </View>
-              </View>
-            </View>
-           
-            <View>
-  
-            <View style = {styles.eventsProfilePost}>
-          <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-            <Text style = {styles. eventsUserName}>User Name</Text>
-          </View>
-  
-              <Image style = {styles.carPics} source = {require('../assets/Cars/chevyCamero.jpg')}/>
-              <ActivityIndicator style = {styles.carLoad}
-                size="large" color="#0000ff">
-              </ActivityIndicator>
-  
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                  Alert.alert("Content has been reported");
-                  setModalVisible(!modalVisible);
-                  }}
-                >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Enter Why this content is being reported</Text>
-              <TextInput>Enter Text</TextInput>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-                 <Button
-                    title="Comment!"
-                    color='#D8232F'
-                    onPress={PostData}
-                  />
-                <Text style={styles.textStyle}>End Report</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
-        <Pressable
-          style={[styles.button, styles.buttonOpen]}
-          onPress={() => setModalVisible(true)}
-        >
-          <Text style={styles.textStyle}>Report Content</Text>
-        </Pressable>
-  
-              <View style = {styles.eventInfo}>
-                <Text style = {styles.eventText}>Cars and Coffee</Text>
-                <Text style = {styles.eventText}>Mon, Jan 4 9:00am-12:00pm</Text>
-                <Text style = {styles.eventText}>2040 W Cuthbert Ave, Midland, TX</Text>
-
-                <TextInput
-                onChangeText = {setComment}
-                >Enter Comment
-                </TextInput>
-
-              
-                <Button
-                    title="Submit Comment!"
-                    color='#D8232F'
-                    onPress={PostData}
-                  />
-
-                <Button
-                    title="Comment!"
-                    color='#D8232F'
-                    onPress={() => navigation.navigate("Comments")}
-                  />
-
-                  
-              
-                <View style = {styles.eventButton}>
-
-                <TouchableHighlight onPress={goingToEvent}>
-                    <View style={styles.goingButton}>
-                      <Text style={styles.buttonText}>Going To Event</Text>
-                    </View>
-                  </TouchableHighlight>
-
-                <TouchableHighlight onPress={interestedInEvent}>
-                    <View style={styles.interestedButton}>
-                      <Text style={styles.buttonText}>Interested</Text>
-                    </View>
-                  </TouchableHighlight>
-
-                  <TouchableHighlight onPress={onShare}>
-                    <View style={styles.shareButton}>
-                      <Text style={styles.buttonText}>Share Event!</Text>
-                    </View>
-                  </TouchableHighlight>
-
-               
-                </View>
-              </View>
-            </View>
           </ScrollView>
-  
+        
         </View>
         
       </View>
@@ -479,6 +320,10 @@ console.log("Document written with ID: ", docRef.id);
       alignItems: 'center',
       justifyContent: 'center',
     },
+    headerView: { 
+      backgroundColor: '#C4C4C4',
+      marginTop: 100
+     },
     scroller: {
       marginBottom: 100,
       color: 'black'
@@ -501,20 +346,33 @@ console.log("Document written with ID: ", docRef.id);
     buttonText: {
       color: '#000000'
     },
+    userInfo: {
+      marginLeft: 100,
+  },
+  eventDetails: {
+    flex: 1,
+    backgroundColor: '#C4C4C4',
+    height: 500
+  },
+  eventAppearance: {
+    flexDirection: 'row'
+  },
     headBanner: {
       flex: 1,
       width: 400,
       backgroundColor: '#222222',
     },
     headBannerEvents: {
-      flex: .4,
+      flex: 1,
       width: 400,
+      marginBottom: 100,
       backgroundColor: '#222222',
     },
     eventBanner: {
       flex: .2,
+      marginBottom: 150,
       width: 400,
-      backgroundColor: '#C4C4C4',
+     
       flexDirection: 'row'
     },
     Logo: {
@@ -527,7 +385,7 @@ console.log("Document written with ID: ", docRef.id);
       fontSize: 35
     },
     companyNamePlacement: {
-      paddingTop: 15
+      paddingTop: 50
     },
     localEvents: {
       color: 'white',
@@ -541,6 +399,13 @@ console.log("Document written with ID: ", docRef.id);
     },
     cityView: {
       flexDirection: 'row'
+    },
+    locationView: {
+      paddingLeft: 125
+    },
+    locationName: {
+      fontWeight: "bold",
+      fontSize: 20,
     },
     eventText: {
       fontWeight: "bold",
@@ -561,11 +426,11 @@ console.log("Document written with ID: ", docRef.id);
   
     },
     profileCar: {
-      height: 200,
+      height: 150,
       width: 400
     },
     profilePictureView: {
-      flex: .8,
+      flex: 1,
       width: 400,
       backgroundColor: '#C4C4C4'
   
@@ -599,6 +464,9 @@ console.log("Document written with ID: ", docRef.id);
     },
     eventDetails: {
   
+    },
+    eventRender: {
+      flexDirection: 'row'
     },
     carLoad: {
       backgroundColor: '#C4C4C4'
