@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableHighlight, TouchableOpacity} from 'react-native';
+import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, SafeAreaView, Share, Modal, Pressable, TouchableHighlight, TouchableOpacity, Platform} from 'react-native';
 //import {Picker} from '@react-native-picker/picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -22,8 +22,9 @@ import DocumentPicker, {
 } from 'react-native-document-picker'
 import { async } from '@firebase/util';
 
-import ImagePicker from 'react-native-image-picker';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+//import ImagePicker from 'react-native-image-crop-picker';
+//import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import { signOut } from 'firebase/auth';
 
 const Profile = ({navigation}) => {
@@ -33,20 +34,17 @@ const Profile = ({navigation}) => {
 
   const[userReport, setReport] = React.useState("Report");
 
-  const state = {
-    imgSource: ''
-  };
-
-  const [imageSource, setImageSource] = useState(undefined);
-
   const [eventList, setEventList] = useState([]);
   const [goingList, setGoingList] = useState([]);
   const [interestedList, setInterestedList] = useState([]);
   const [userEmail, setEmail] = useState([]);
 
-  const [imageUrl, setImageUrl] = useState(undefined);
+  const [image, setImage] = useState(null);
 
   const [currentDate, setCurrentDate] = useState('');
+
+  const [uploading, setUploading] = useState(false);
+  const [transferred, setTransferred] = useState(0);
 
   const options = {
     title: 'Select Image',
@@ -102,6 +100,96 @@ const Profile = ({navigation}) => {
 console.log("Document written with ID: ", docRef.id);
 
   }
+
+  const selectImage = () => {
+    const options = {
+      maxWidth: 2000,
+      maxHeight: 2000,
+      storageOptions: {
+        skipBackup: true,
+        path: 'images'
+      }
+    };
+    ImagePicker.showImagePicker(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      } else {
+        const source = { uri: response.uri };
+        console.log(source);
+        setImage(source);
+      }
+    });
+  };
+
+  const  uploadImage = () => {
+    const ext = this.state.imageUri.split('.').pop(); // Extract image extension
+    const filename = `${uuid()}.${ext}`; // Generate unique name
+    this.setState({ uploading: true });
+    firebase
+      .storage()
+      .ref(`TestPictures/${filename}`)
+      .putFile(this.state.imageUri)
+      .on(
+        firebase.storage.TaskEvent.STATE_CHANGED,
+        snapshot => {
+          let state = {};
+          state = {
+            ...state,
+            progress: (snapshot.bytesTransferred / snapshot.totalBytes) * 100 // Calculate progress percentage
+          };
+          if (snapshot.state === firebase.storage.TaskState.SUCCESS) {
+            const allImages = this.state.images;
+            allImages.push(snapshot.downloadURL);
+            state = {
+              ...state,
+              uploading: false,
+              imgSource: '',
+              imageUri: '',
+              progress: 0,
+              images: allImages
+            };
+            AsyncStorage.setItem('images', JSON.stringify(allImages));
+          }
+          this.setState(state);
+        },
+        error => {
+          unsubscribe();
+          alert('Sorry, Try again.');
+        }
+      );
+  };
+
+  const uploadImage2 = async () => {
+    const { uri } = image;
+    const filename = uri.substring(uri.lastIndexOf('/') + 1);
+    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    setUploading(true);
+    setTransferred(0);
+    const task = storage()
+      .ref(filename)
+      .putFile(uploadUri);
+    // set progress state
+    task.on('state_changed', snapshot => {
+      setTransferred(
+        Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
+      );
+    });
+    try {
+      await task;
+    } catch (e) {
+      console.error(e);
+    }
+    setUploading(false);
+    Alert.alert(
+      'Photo uploaded!',
+      'Your photo has been uploaded to Firebase Cloud Storage!'
+    );
+    setImage(null);
+  };
 
     //Call when component is rendered
     useEffect(() => {
@@ -162,20 +250,23 @@ console.log("Document written with ID: ", docRef.id);
   
     }
 
-    const pickImage = () => {
-      ImagePicker.showImagePicker(options, response => {
-        if (response.didCancel) {
-          alert('You cancelled image picker 😟');
-        } else if (response.error) {
-          alert('And error occured: ', response.error);
-        } else {
-          const source = { uri: response.uri };
-          this.setState({
-            imgSource: source
-          });
-        }
+    const pickImage = async () => {
+      // No permissions request is necessary for launching the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
       });
+  
+      console.log(result);
+  
+      if (!result.cancelled) {
+        setImage(result.uri);
+      }
     };
+
+    
 
     const renderItem = ({ item }) => {
 
@@ -328,25 +419,34 @@ console.log("Document written with ID: ", docRef.id);
               />
         </ScrollView>
 
-            <Text  style = {styles.pageName}>Interested</Text>
-            <Button
-            title = "Select Picture"
-            onPress={launchCamera()}></Button>
-        </View>
-
-        <TouchableOpacity style={styles.btn} onPress={pickImage}>
-          <View>
-            <Text style={styles.btnTxt}>Pick image</Text>
+        <SafeAreaView style={styles.container}>
+      <View style={styles.imageContainer}>
+        {image !== null ? (
+          <Image source={{ uri: image.uri }} style={styles.imageBox} />
+        ) : null}
+        {uploading ? (
+          <View style={styles.progressBarContainer}>
+            <Progress.Bar progress={transferred} width={300} />
           </View>
-        </TouchableOpacity>
-      
-        {imageSource ? (
-          <Image
-            source={imageSource}
-          />
         ) : (
-          <Text>Select an Image!</Text>
+          <TouchableOpacity style={styles.uploadButton} onPress={uploadImage2}>
+            <Text style={styles.buttonText}>Upload image</Text>
+          </TouchableOpacity>
         )}
+      </View>
+    </SafeAreaView>
+
+    <View style = {styles.imageContainer}>
+    <Text>Interested</Text>
+            <Button title="Pick an image from camera roll" onPress={pickImage} />
+      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+    </View>
+
+            
+
+    
+          
+        </View>
 
         <ScrollView style = {styles.eventDetails}>
           <View>
@@ -357,6 +457,8 @@ console.log("Document written with ID: ", docRef.id);
           </View>
 
           </ScrollView>
+
+          
        
        
       </View>
@@ -410,6 +512,9 @@ console.log("Document written with ID: ", docRef.id);
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    imageContainer: {
+      marginTop: 30
     },
     headerView: { 
      backgroundColor: '#C4C4C4'
@@ -607,5 +712,39 @@ console.log("Document written with ID: ", docRef.id);
       borderRadius: 20,
       padding: 35,
       alignItems: "center",
+    },
+    selectButton: {
+      borderRadius: 5,
+      width: 150,
+      height: 50,
+      backgroundColor: '#8ac6d1',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    uploadButton: {
+      borderRadius: 5,
+      width: 150,
+      height: 50,
+      backgroundColor: '#ffb6b9',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 20
+    },
+    buttonText: {
+      color: 'white',
+      fontSize: 18,
+      fontWeight: 'bold'
+    },
+    imageContainer: {
+      marginTop: 30,
+      marginBottom: 50,
+      alignItems: 'center'
+    },
+    progressBarContainer: {
+      marginTop: 20
+    },
+    imageBox: {
+      width: 300,
+      height: 300
     }
   });

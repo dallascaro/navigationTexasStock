@@ -10,37 +10,111 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { async } from '@firebase/util';
 
 import RNPickerSelect from 'react-native-picker-select';
+import { TextInput } from 'react-native-gesture-handler';
 
-const renderCompanies = async (item, index) => {
-  return(
-    <TouchableOpacity>
-
-      <View>
-        <Text>{item.id}</Text>
-        <Text>{item.title}</Text>
-        <Text>{item.link}</Text>
-      </View>
-      
-    </TouchableOpacity>
-  )
-}
+import * as ImagePicker from 'expo-image-picker';
 
 
 const Settings = () => {
+
+  const [image, setImage] = useState(null);
+
+  const  uploadImage = () => {
+    const ext = this.state.imageUri.split('.').pop(); // Extract image extension
+    const filename = `${uuid()}.${ext}`; // Generate unique name
+    this.setState({ uploading: true });
+    firebase
+      .storage()
+      .ref(`TestPictures/${filename}`)
+      .putFile(this.state.imageUri)
+      .on(
+        firebase.storage.TaskEvent.STATE_CHANGED,
+        snapshot => {
+          let state = {};
+          state = {
+            ...state,
+            progress: (snapshot.bytesTransferred / snapshot.totalBytes) * 100 // Calculate progress percentage
+          };
+          if (snapshot.state === firebase.storage.TaskState.SUCCESS) {
+            const allImages = this.state.images;
+            allImages.push(snapshot.downloadURL);
+            state = {
+              ...state,
+              uploading: false,
+              imgSource: '',
+              imageUri: '',
+              progress: 0,
+              images: allImages
+            };
+            AsyncStorage.setItem('images', JSON.stringify(allImages));
+          }
+          this.setState(state);
+        },
+        error => {
+          unsubscribe();
+          alert('Sorry, Try again.');
+        }
+      );
+  };
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
 
   return (
 
     <View style={styles.container}>
 
-    <View>
-      <FlatList
-      horizontal
-      showsHorizontalScrollIndicator ={false}
-      keyExtractor={item => item.id.toString()}
-      renderItem = {({item, index}) =>
-      renderCompanies(item, index)}>
+      <View style  = {styles.headBannerEvents}>
+          <View style = {styles.companyNamePlacement}>
+        <Image style = {styles.profileCar} source = {require('../assets/CompanyLogo/TXStockRally.jpg')}/>
+        </View>
+        </View>
 
-      </FlatList>
+      <View>
+        <Text>Notifications</Text>
+
+        <Text>Privacy</Text>
+
+       <Text>Help</Text>
+
+       <Text>About</Text>
+
+       <Text>Theme</Text>
+
+      </View>
+
+    <View>
+     <TextInput>First Name</TextInput>
+     <TextInput>Last Name</TextInput>
+     <TextInput>Date of Birth</TextInput>
+     <TextInput>Mobile Number</TextInput>
+     <TextInput>Vehicle</TextInput>
+     <TextInput>Year</TextInput>
+     <TextInput>Model</TextInput>
+     <TextInput>Modifications</TextInput>
+
+     <Button title="Pick an image from camera roll" onPress={pickImage} />
+      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+
+     <Button
+     title='Submit Data'></Button>
+
+<Button
+     title='Delete Account'></Button>
+     
     </View>
   
   </View>
@@ -54,6 +128,7 @@ const Settings = () => {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+      backgroundColor: '#C4C4C4',
     },
     listView: {
       flex: 1,
@@ -79,6 +154,7 @@ const Settings = () => {
       flex: 1,
       width: 400,
       backgroundColor: '#222222',
+      marginBottom: 200
     },
     headBannerEvents: {
       flex: .3,
