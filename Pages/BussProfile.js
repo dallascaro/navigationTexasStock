@@ -42,6 +42,8 @@ const BussProfile = ({navigation}) => {
   const [goingList, setGoingList] = useState([]);
   const [interestedList, setInterestedList] = useState([]);
   const [userEmail, setEmail] = useState([]);
+  const [currentDate, setCurrentDate] = useState('');
+  
 
   const [imageUrl, setImageUrl] = useState(undefined);
 
@@ -52,6 +54,15 @@ const BussProfile = ({navigation}) => {
       path: 'images'
     }
   };
+
+  const SignOut = async () => {
+    const docRef =  addDoc(collection(db, "Company SignOut"), {
+      email: userEmail,
+      time: currentDate,
+      signedIn: 'no'
+    });
+    navigation.navigate("Home")
+  }
 
   const PullData = async () => {
     const myDoc = collection(db, 'Users Events')
@@ -93,6 +104,16 @@ console.log("Document written with ID: ", docRef.id);
     useEffect(() => {
       PullData();
       PullUserEmail();
+      var date = new Date().getDate(); //Current Date
+      var month = new Date().getMonth() + 1; //Current Month
+      var year = new Date().getFullYear(); //Current Year
+      var hours = new Date().getHours(); //Current Hours
+      var min = new Date().getMinutes(); //Current Minutes
+      var sec = new Date().getSeconds(); //Current Seconds
+      setCurrentDate(
+        date + '/' + month + '/' + year 
+        + ' ' + hours + ':' + min + ':' + sec
+      );
     }, []);
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -271,6 +292,12 @@ console.log("Document written with ID: ", docRef.id);
               renderItem = {renderUserEmail}
               />
         </ScrollView>
+
+        <Button
+                    title="Sign Out!"
+                    color='#D8232F'
+                    onPress={SignOut}
+                  />
        
         <Text style = {styles.pageName}>Attending</Text>
         

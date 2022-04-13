@@ -18,6 +18,8 @@ const BussHome = ({ navigation }) => {
   const[email, setEmail] = React.useState("Email");
   const[password, setPassword] = React.useState("Password");
 
+  const [currentDate, setCurrentDate] = useState('');
+
   const onRegister = async () => {
     try {
       const credential = await auth.createUserWithEmailAndPassword(
@@ -67,6 +69,12 @@ const BussHome = ({ navigation }) => {
       const user = userCredential.user;
       console.log('Signed In User')
       // ...
+      const docRef =  addDoc(collection(db, "Company SignIn"), {
+        email: email,
+        time: currentDate,
+        signedIn: 'yes'
+      });
+      console.log("Document written with ID: ", docRef.id);
     })
     .catch((error) => {
       console.log('Failed to sign in User')
@@ -75,6 +83,11 @@ const BussHome = ({ navigation }) => {
       console.log(errorCode)
       console.log(errorMessage)
       // ..
+
+      
+
+      
+
     });
 
     navigation.navigate("EventsTB")
@@ -92,6 +105,19 @@ const BussHome = ({ navigation }) => {
             console.log(e);
         });
 };
+
+useEffect(() => {
+  var date = new Date().getDate(); //Current Date
+  var month = new Date().getMonth() + 1; //Current Month
+  var year = new Date().getFullYear(); //Current Year
+  var hours = new Date().getHours(); //Current Hours
+  var min = new Date().getMinutes(); //Current Minutes
+  var sec = new Date().getSeconds(); //Current Seconds
+  setCurrentDate(
+    date + '/' + month + '/' + year 
+    + ' ' + hours + ':' + min + ':' + sec
+  );
+}, []);
 
     return(
       <View style = {styles.container}>
