@@ -42,14 +42,19 @@ const Home = ({ navigation }) => {
         user_id: uid,
       };
       console.log(user)
-      //await firestore().collection('UserIDs').doc(uid).set(user);
-
+  
       const docRef = await addDoc(collection(db, "UserIDs"), {
         email: email,
         user_id: uid,
       });
 
+      const docRef2 = await addDoc(collection(db, "User Type"), {
+        email: email,
+        userType: 'Personal'
+      });
+
       console.log("Document written with ID: ", docRef.id);
+      console.log("Document written with ID: ", docRef2.id);
 
     } catch {
       console.log("Didnt add to database")
@@ -98,8 +103,8 @@ const Home = ({ navigation }) => {
       console.log(errorCode)
       console.log(errorMessage)
       // ..
-      
-      const docRef =  addDoc(collection(db, "User SignIn"), {
+  
+      const docRef = addDoc(collection(db, "User SignIn"), {
         email: email,
         time: currentDate,
         signedIn: 'yes'

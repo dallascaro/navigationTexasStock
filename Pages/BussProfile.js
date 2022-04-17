@@ -43,6 +43,8 @@ const BussProfile = ({navigation}) => {
   const [interestedList, setInterestedList] = useState([]);
   const [userEmail, setEmail] = useState([]);
   const [currentDate, setCurrentDate] = useState('');
+
+  const [userType, setType] = useState([]);
   
 
   const [imageUrl, setImageUrl] = useState(undefined);
@@ -81,12 +83,32 @@ const BussProfile = ({navigation}) => {
     setInterestedList(interestedSnapList)
   }
 
+  async function isUserTypeBussiness() {
+    const userType = db.collection('User Type');
+    const isUserTypeBuss = userType.where('userType', '=', 'Bussiness').get();
+  
+    const [isUserTypeBussQuery] = await Promise.all([isUserTypeBuss]);
+  
+    const isLessThan500KCitiesArray = isUserTypeBuss.docs;
+    const isMoreThan1M5Array = isMoreThan1M5QuerySnapshot.docs;
+  
+    //Note that we don't need to de-duplicate in this case
+    return _.concat(isLessThan500KCitiesArray, isMoreThan1M5Array);
+  }
+  
+
   const PullUserEmail = async () => {
-    const myDoc = collection(db, "UserIDs")
+    const myDoc = collection(db, "CompanyID's")
     const snapShot = await getDocs(myDoc);
     const snapList = snapShot.docs.map(doc => doc.data());
     setEmail(snapList)
     console.log(snapList);
+
+    const myDoc2 = collection(db, "User Type")
+    const snapShot2 = await getDocs(myDoc2);
+    const snapList2 = snapShot2.docs.map(doc => doc.data());
+    setType(snapList2)
+    console.log(snapList2);
   }
 
   const reportContent = async () => { 

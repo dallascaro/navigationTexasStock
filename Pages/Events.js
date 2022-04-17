@@ -31,6 +31,8 @@ const Events = ({navigation}) => {
   const [goingList, setGoingList] = useState([]);
   const [interestedList, setInterestedList] = useState([]);
 
+  const [eventPageNum] = React.useState(1);
+
    //Call when component is rendered
    useEffect(() => {
     PullData();
@@ -252,7 +254,7 @@ console.log("Document written with ID: ", docRef.id);
     
         <View style = {styles.headerView}>
        
-      <View >
+     
         <Text style = {styles.eventName}>Local Events</Text>
 
         <View style = {styles.cityView}> 
@@ -289,20 +291,16 @@ console.log("Document written with ID: ", docRef.id);
             ]}
         />
           
-      </View>
 
           <View style = {styles.locationView}>
           <Text style = {styles.locationName}>{location}</Text>
           </View>
         
-        <ScrollView style = {styles.eventDetails}>
-          <View>
+        <ScrollView style = {styles.eventDetails} contentContainerStyle={{paddingBottom: 50}}>
             <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
               data = {goingList}
               renderItem = {renderItem}
               />
-          </View>
-
           </ScrollView>
         
         </View>
@@ -325,8 +323,7 @@ console.log("Document written with ID: ", docRef.id);
       marginTop: 100
      },
     scroller: {
-      marginBottom: 100,
-      color: 'black'
+      backgroundColor: 'white'
     },
     goingButton: {
       backgroundColor: '#D8232F',
@@ -351,8 +348,10 @@ console.log("Document written with ID: ", docRef.id);
   },
   eventDetails: {
     flex: 1,
-    backgroundColor: '#C4C4C4',
-    height: 500
+    backgroundColor: '#C4C4C4'
+  },
+  events: {
+    flex: 1
   },
   eventAppearance: {
     flexDirection: 'row'

@@ -11,8 +11,9 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
 import {getDownloadURL} from "firebase/storage";
-import { db, pathReference2, profilePicRef, jeremyPic, storage} from "../firebase";
-import { collection, getDocs, addDoc, doc } from "firebase/firestore/lite";
+import { db, pathReference2, profilePicRef, jeremyPic, storage, storageRef} from "../firebase";
+import { uploadBytes, ref } from '@firebase/storage';
+import { collection, getDocs, addDoc} from "firebase/firestore/lite";
 // To pick the file from local file system
 import DocumentPicker, {
   DirectoryPickerResponse,
@@ -26,6 +27,7 @@ import { async } from '@firebase/util';
 //import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { signOut } from 'firebase/auth';
+import {v4} from "react-native-uuid"
 
 const Profile = ({navigation}) => {
 
@@ -41,10 +43,14 @@ const Profile = ({navigation}) => {
 
   const [image, setImage] = useState(null);
 
+  const [imageName, setImageName] = useState();
+
   const [currentDate, setCurrentDate] = useState('');
 
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
+
+  const [profilePageNum] = React.useState(2);
 
   const options = {
     title: 'Select Image',
@@ -190,6 +196,13 @@ console.log("Document written with ID: ", docRef.id);
     );
     setImage(null);
   };
+
+  const uploadImage3 = async () => {
+    console.log("Entered Upload Image");
+      const imageRef = ref(storage, 'assests/ProfilePicture/${imageUpload.name + v4()}');
+      uploadBytes(imageRef, image);
+      console.log("Image Uploaded");
+  }
 
     //Call when component is rendered
     useEffect(() => {
@@ -355,16 +368,16 @@ console.log("Document written with ID: ", docRef.id);
           <View style = {styles.eventButton}>
 
           <TouchableHighlight onPress={interestedInEvent}>
-                    <View style={styles.interestedButton}>
-                      <Text style={styles.buttonText}>Interested</Text>
-                    </View>
-                  </TouchableHighlight>
+                  <View style={styles.interestedButton}>
+                    <Text >Interested</Text>
+                  </View>
+                </TouchableHighlight>
 
-                  <TouchableHighlight onPress={onShare}>
-                    <View style={styles.shareButton}>
-                      <Text style={styles.buttonText}>Share Event!</Text>
-                    </View>
-                  </TouchableHighlight>
+                <TouchableHighlight onPress={onShare}>
+                  <View style={styles.shareButton}>
+                    <Text>Share Event!</Text>
+                  </View>
+                </TouchableHighlight>
 
               </View>
 
@@ -419,27 +432,15 @@ console.log("Document written with ID: ", docRef.id);
               />
         </ScrollView>
 
-        <SafeAreaView style={styles.container}>
-      <View style={styles.imageContainer}>
-        {image !== null ? (
-          <Image source={{ uri: image.uri }} style={styles.imageBox} />
-        ) : null}
-        {uploading ? (
-          <View style={styles.progressBarContainer}>
-            <Progress.Bar progress={transferred} width={300} />
-          </View>
-        ) : (
-          <TouchableOpacity style={styles.uploadButton} onPress={uploadImage2}>
-            <Text style={styles.buttonText}>Upload image</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </SafeAreaView>
+        
 
     <View style = {styles.imageContainer}>
     <Text>Interested</Text>
             <Button title="Pick an image from camera roll" onPress={pickImage} />
       {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+      <TouchableOpacity style={styles.uploadButton} onPress={uploadImage3}>
+            <Text style={styles.buttonText}>Upload image</Text>
+          </TouchableOpacity>
     </View>
 
             
@@ -562,6 +563,9 @@ console.log("Document written with ID: ", docRef.id);
       backgroundColor: '#00FF00',
       height: 30,
       borderRadius: 10
+    },
+    buttonText: {
+    
     },
     companyName: {
       color: 'white',
@@ -692,6 +696,7 @@ console.log("Document written with ID: ", docRef.id);
       width: 150,
       padding: 10
     },
+   
     stateView: {
       marginTop: 30
       

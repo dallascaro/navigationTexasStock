@@ -26,15 +26,29 @@ const BussHome = ({ navigation }) => {
         email,
         password,
       );
-      const {uid} = credential;
-      console.log(uid)
+      const uid = credential.user.uid;
+      console.log("Bussiness ID", uid)
       // your data here (dont forget to store the uid on the document)
       const user = {
         email: email,
         user_id: uid,
       };
+      
       console.log(user)
-      await firestore().collection('Users').doc(uid).set(user);
+
+      const docRef2 = await addDoc(collection(db, "CompanyID's"), {
+        email: email,
+        user_id: uid,
+      });
+
+      const docRef = await addDoc(collection(db, "User Type"), {
+        email: email,
+        userType: 'Bussiness'
+      });
+
+      console.log("Document written with ID: ", docRef.id);
+      console.log("Document written with ID: ", docRef2.id);
+
     } catch {
       console.log("Didnt add to database")
     }
@@ -49,6 +63,11 @@ const BussHome = ({ navigation }) => {
         const user = userCredential.user;
         console.log('User Created In')
         // ...
+        const docRef =  addDoc(collection(db, "User Type"), {
+          email: email,
+          userType: 'Bussiness'
+        });
+        console.log("Document written with ID: ", docRef.id);
       })
       .catch((error) => {
         console.log('User failed to be created')

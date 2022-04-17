@@ -34,6 +34,8 @@ import { GooglePay } from 'react-native-google-pay';
 
 const Services = ({navigation}) => {
 
+  const [servicesPageNum] = React.useState(3);
+
   const {
     isGooglePaySupported,
     initGooglePay,
@@ -202,8 +204,6 @@ console.log("Document written with ID: ", docRef.id);
           <Button
           title = "Pay Now"
           onPress={payment} disabled= {loading}></Button>
-
-    
         </View>
 
         <View >

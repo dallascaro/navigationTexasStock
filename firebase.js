@@ -50,8 +50,9 @@ const pathReference2 = ref(storage, 'gs://texasstockrally-aaae6.appspot.com/asse
 //Create a reference to upload pic
 const profilePicRef = ref(storage, 'assests/ProfilePicture/profilePic.png');
 
-// Create file variable
-const fileUpload = 'assests/ProfilePicture/profilePic.png';
+// Create file variable to upload files
+const fileUpload = 'gs://texasstockrally-aaae6.appspot.com/assests/ProfilePicture';
+
 
 // Upload the file and metadata
 const uploadTask = uploadBytesResumable(profilePicRef, fileUpload);
@@ -61,6 +62,6 @@ uploadBytes(pathReference)
 // Create a reference to pull jeremys pic
 const jeremyPic = ref(storage, 'gs://texasstockrally-aaae6.appspot.com/TestPictures/demon1.jpg');
 
-export {auth, db, storage, pathReference2, profilePicRef, jeremyPic};
+export {auth, db, storage, storageRef, pathReference2, profilePicRef, jeremyPic};
 export default getFirestore(app);
 //Test comment from Jeremy

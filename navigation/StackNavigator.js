@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import { createStackNavigator } from "@react-navigation/stack";
 import Home from "../Pages/Home";
 import Events from "../Pages/Events";
@@ -13,6 +13,9 @@ import BussProfile from "../Pages/BussProfile";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import { db, writeUserData } from "../firebase";
+import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore/lite";
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -23,6 +26,8 @@ const screenOptionStyle = {
   headerTintColor: "white",
   headerBackTitle: "Back",
 };
+
+
 const MainStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={screenOptionStyle}>
@@ -30,7 +35,6 @@ const MainStackNavigator = () => {
       <Stack.Screen name="Events" component={Events} />
       <Stack.Screen name="BussHome" component={BussHome} options={{headerShown: false}} />
         <Stack.Screen name="BussProfile" component={BussProfile} options={{headerShown: false}}/>
-      
     </Stack.Navigator>
   );
 };
@@ -83,7 +87,7 @@ const TabNavigator = () => {
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="car" color={color} size={size} />
-        ),headerShown: false, tabBarBadge: '5'}}
+        ),headerShown: false, tabBarBadge: '1'}}
       />
       <Tab.Screen name="Profile" 
       component={ProfileStackNavigator} 
@@ -123,4 +127,4 @@ const BussTabNavigator = () => {
     </Tab.Navigator>
   );
 };
-export { MainStackNavigator, EventsStackNavigator, ProfileStackNavigator, BussStackNavigator, ServicesStackNavigator, SettingsStackNavigator, TabNavigator, BussTabNavigator };
+export { MainStackNavigator, EventsStackNavigator, ProfileStackNavigator, BussStackNavigator, ServicesStackNavigator, SettingsStackNavigator, TabNavigator, BussTabNavigator};
