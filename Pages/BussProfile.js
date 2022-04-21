@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableHighlight, TouchableOpacity} from 'react-native';
+import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, SafeAreaView, Share, Modal, Pressable, TouchableHighlight, TouchableOpacity, Platform} from 'react-native';
 //import {Picker} from '@react-native-picker/picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,8 +11,9 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
 import {getDownloadURL} from "firebase/storage";
-import { db, pathReference2, profilePicRef, jeremyPic, storage} from "../firebase";
-import { collection, getDocs, addDoc, doc } from "firebase/firestore/lite";
+import { db, pathReference2, profilePicRef, jeremyPic, storage, storageRef} from "../firebase";
+import { uploadBytes, ref } from '@firebase/storage';
+import { collection, getDocs, addDoc} from "firebase/firestore/lite";
 // To pick the file from local file system
 import DocumentPicker, {
   DirectoryPickerResponse,
@@ -22,8 +23,11 @@ import DocumentPicker, {
 } from 'react-native-document-picker'
 import { async } from '@firebase/util';
 
-import ImagePicker from 'react-native-image-picker';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+//import ImagePicker from 'react-native-image-crop-picker';
+//import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+import { signOut } from 'firebase/auth';
+import {v4} from "react-native-uuid"
 
 const BussProfile = ({navigation}) => {
 
@@ -32,22 +36,31 @@ const BussProfile = ({navigation}) => {
 
   const[userReport, setReport] = React.useState("Report");
 
-  const state = {
-    imgSource: ''
-  };
-
-  const [imageSource, setImageSource] = useState(undefined);
-
   const [eventList, setEventList] = useState([]);
   const [goingList, setGoingList] = useState([]);
   const [interestedList, setInterestedList] = useState([]);
   const [userEmail, setEmail] = useState([]);
+
+  const [image, setImage] = useState(null);
+
+  const [imageName, setImageName] = useState();
+
   const [currentDate, setCurrentDate] = useState('');
 
-  const [userType, setType] = useState([]);
-  
+  const [uploading, setUploading] = useState(false);
+  const [transferred, setTransferred] = useState(0);
 
-  const [imageUrl, setImageUrl] = useState(undefined);
+  const [profilePageNum] = React.useState(2);
+
+  const [userType, setType] = useState([]);
+ 
+   const state = {
+     imgSource: ''
+   };
+ 
+   const [imageSource, setImageSource] = useState(undefined);
+ 
+   const [imageUrl, setImageUrl] = useState(undefined);
 
   const options = {
     title: 'Select Image',
@@ -57,13 +70,17 @@ const BussProfile = ({navigation}) => {
     }
   };
 
-  const SignOut = async () => {
-    const docRef =  addDoc(collection(db, "Company SignOut"), {
-      email: userEmail,
-      time: currentDate,
-      signedIn: 'no'
-    });
-    navigation.navigate("Home")
+  async function isUserTypeBussiness() {
+    const userType = db.collection('User Type');
+    const isUserTypeBuss = userType.where('userType', '=', 'Bussiness').get();
+  
+    const [isUserTypeBussQuery] = await Promise.all([isUserTypeBuss]);
+  
+    const isLessThan500KCitiesArray = isUserTypeBuss.docs;
+    const isMoreThan1M5Array = isMoreThan1M5QuerySnapshot.docs;
+  
+    //Note that we don't need to de-duplicate in this case
+    return _.concat(isLessThan500KCitiesArray, isMoreThan1M5Array);
   }
 
   const PullData = async () => {
@@ -83,32 +100,21 @@ const BussProfile = ({navigation}) => {
     setInterestedList(interestedSnapList)
   }
 
-  async function isUserTypeBussiness() {
-    const userType = db.collection('User Type');
-    const isUserTypeBuss = userType.where('userType', '=', 'Bussiness').get();
-  
-    const [isUserTypeBussQuery] = await Promise.all([isUserTypeBuss]);
-  
-    const isLessThan500KCitiesArray = isUserTypeBuss.docs;
-    const isMoreThan1M5Array = isMoreThan1M5QuerySnapshot.docs;
-  
-    //Note that we don't need to de-duplicate in this case
-    return _.concat(isLessThan500KCitiesArray, isMoreThan1M5Array);
+  const SignOut = async () => {
+    const docRef =  addDoc(collection(db, "User SignOut"), {
+      email: userEmail,
+      time: currentDate,
+      signedIn: 'no'
+    });
+    navigation.navigate("Home")
   }
-  
 
   const PullUserEmail = async () => {
-    const myDoc = collection(db, "CompanyID's")
+    const myDoc = collection(db, "UserIDs")
     const snapShot = await getDocs(myDoc);
     const snapList = snapShot.docs.map(doc => doc.data());
     setEmail(snapList)
     console.log(snapList);
-
-    const myDoc2 = collection(db, "User Type")
-    const snapShot2 = await getDocs(myDoc2);
-    const snapList2 = snapShot2.docs.map(doc => doc.data());
-    setType(snapList2)
-    console.log(snapList2);
   }
 
   const reportContent = async () => { 
@@ -120,6 +126,104 @@ const BussProfile = ({navigation}) => {
 
 console.log("Document written with ID: ", docRef.id);
 
+  }
+
+  const selectImage = () => {
+    const options = {
+      maxWidth: 2000,
+      maxHeight: 2000,
+      storageOptions: {
+        skipBackup: true,
+        path: 'images'
+      }
+    };
+    ImagePicker.showImagePicker(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      } else {
+        const source = { uri: response.uri };
+        console.log(source);
+        setImage(source);
+      }
+    });
+  };
+
+  const  uploadImage = () => {
+    const ext = this.state.imageUri.split('.').pop(); // Extract image extension
+    const filename = `${uuid()}.${ext}`; // Generate unique name
+    this.setState({ uploading: true });
+    firebase
+      .storage()
+      .ref(`TestPictures/${filename}`)
+      .putFile(this.state.imageUri)
+      .on(
+        firebase.storage.TaskEvent.STATE_CHANGED,
+        snapshot => {
+          let state = {};
+          state = {
+            ...state,
+            progress: (snapshot.bytesTransferred / snapshot.totalBytes) * 100 // Calculate progress percentage
+          };
+          if (snapshot.state === firebase.storage.TaskState.SUCCESS) {
+            const allImages = this.state.images;
+            allImages.push(snapshot.downloadURL);
+            state = {
+              ...state,
+              uploading: false,
+              imgSource: '',
+              imageUri: '',
+              progress: 0,
+              images: allImages
+            };
+            AsyncStorage.setItem('images', JSON.stringify(allImages));
+          }
+          this.setState(state);
+        },
+        error => {
+          unsubscribe();
+          alert('Sorry, Try again.');
+        }
+      );
+  };
+
+  const uploadImage2 = async () => {
+    const { uri } = image;
+    const filename = uri.substring(uri.lastIndexOf('/') + 1);
+    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    setUploading(true);
+    setTransferred(0);
+    const task = storage()
+      .ref(filename)
+      .putFile(uploadUri);
+    // set progress state
+    task.on('state_changed', snapshot => {
+      setTransferred(
+        Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
+      );
+    });
+    try {
+      await task;
+    } catch (e) {
+      console.error(e);
+    }
+    setUploading(false);
+    Alert.alert(
+      'Photo uploaded!',
+      'Your photo has been uploaded to Firebase Cloud Storage!'
+    );
+    setImage(null);
+  };
+
+  const uploadImage3 = async () => {
+    console.log("Entered Upload Image");
+    console.log(image.name);
+      const imageRef =ref(storage,`assests/ProfilePicture/${image.name}`)
+      uploadBytes(imageRef, image);
+      console.log("Image Uploaded");
   }
 
     //Call when component is rendered
@@ -181,20 +285,24 @@ console.log("Document written with ID: ", docRef.id);
   
     }
 
-    const pickImage = () => {
-      ImagePicker.showImagePicker(options, response => {
-        if (response.didCancel) {
-          alert('You cancelled image picker 😟');
-        } else if (response.error) {
-          alert('And error occured: ', response.error);
-        } else {
-          const source = { uri: response.uri };
-          this.setState({
-            imgSource: source
-          });
-        }
+    const pickImage = async () => {
+      // No permissions request is necessary for launching the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
       });
+  
+      console.log( "Image Results" ,result);
+  
+      if (!result.cancelled) {
+        setImage(result.uri);
+        console.log(image);
+      }
     };
+
+    
 
     const renderItem = ({ item }) => {
 
@@ -273,26 +381,25 @@ console.log("Document written with ID: ", docRef.id);
             <Text style = {styles.eventText}>{item.username}</Text>
           </View>
 
-          <Button
-                    title="Comment!"
-                    color='#D8232F'
-                    onPress={() => navigation.navigate("Comments")}
-                  />
-
+          <TouchableHighlight onPress={() => navigation.navigate("Comments")}>
+                  <View style={styles.goingButton}>
+                    <Text style={styles.buttonText}>Comment</Text>
+                  </View>
+                </TouchableHighlight>
 
           <View style = {styles.eventButton}>
 
           <TouchableHighlight onPress={interestedInEvent}>
-                    <View style={styles.interestedButton}>
-                      <Text style={styles.buttonText}>Interested</Text>
-                    </View>
-                  </TouchableHighlight>
+                  <View style={styles.interestedButton}>
+                    <Text >Interested</Text>
+                  </View>
+                </TouchableHighlight>
 
-                  <TouchableHighlight onPress={onShare}>
-                    <View style={styles.shareButton}>
-                      <Text style={styles.buttonText}>Share Event!</Text>
-                    </View>
-                  </TouchableHighlight>
+                <TouchableHighlight onPress={onShare}>
+                  <View style={styles.shareButton}>
+                    <Text>Share Event!</Text>
+                  </View>
+                </TouchableHighlight>
 
               </View>
 
@@ -315,11 +422,13 @@ console.log("Document written with ID: ", docRef.id);
               />
         </ScrollView>
 
-        <Button
-                    title="Sign Out!"
-                    color='#D8232F'
-                    onPress={SignOut}
-                  />
+                  
+          <TouchableHighlight onPress={SignOut}>
+                  <View style={styles.goingButton}>
+                    <Text style={styles.buttonText}>Sign Out!</Text>
+                  </View>
+                </TouchableHighlight>
+
        
         <Text style = {styles.pageName}>Attending</Text>
         
@@ -347,25 +456,24 @@ console.log("Document written with ID: ", docRef.id);
               />
         </ScrollView>
 
-            <Text  style = {styles.pageName}>Interested</Text>
-            <Button
-            title = "Select Picture"
-            onPress={launchCamera()}></Button>
-        </View>
+        
 
-        <TouchableOpacity style={styles.btn} onPress={pickImage}>
-          <View>
-            <Text style={styles.btnTxt}>Pick image</Text>
-          </View>
-        </TouchableOpacity>
-      
-        {imageSource ? (
-          <Image
-            source={imageSource}
-          />
-        ) : (
-          <Text>Select an Image!</Text>
-        )}
+    <View style = {styles.imageContainer}>
+    <Text>Interested</Text>
+    <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+            <Text style={styles.buttonText}>Pick an image from camera roll</Text>
+          </TouchableOpacity>
+      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+      <TouchableOpacity style={styles.uploadButton} onPress={uploadImage3}>
+            <Text style={styles.buttonText}>Upload image</Text>
+          </TouchableOpacity>
+    </View>
+
+            
+
+    
+          
+        </View>
 
         <ScrollView style = {styles.eventDetails}>
           <View>
@@ -376,6 +484,8 @@ console.log("Document written with ID: ", docRef.id);
           </View>
 
           </ScrollView>
+
+          
        
        
       </View>
@@ -394,16 +504,12 @@ console.log("Document written with ID: ", docRef.id);
         <Text  style = {styles.pageName}>My Events</Text>
         </View>
 
-      
-
-        
-
-<Button
-                    title="Create Event!"
-                    color='#17E217'
-                    onPress={() => navigation.navigate("CreateEvent")}
-                    
-                  />
+                           
+          <TouchableHighlight  onPress={() => navigation.navigate("CreateEvent")}>
+                  <View style={styles.createEventButton}>
+                    <Text style={styles.buttonText}>Create Event!</Text>
+                  </View>
+                </TouchableHighlight>
 
 <ScrollView style = {styles.eventDetails}>
           <View>
@@ -429,6 +535,9 @@ console.log("Document written with ID: ", docRef.id);
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    imageContainer: {
+      marginTop: 30
     },
     headerView: { 
      backgroundColor: '#C4C4C4'
@@ -476,6 +585,25 @@ console.log("Document written with ID: ", docRef.id);
       backgroundColor: '#00FF00',
       height: 30,
       borderRadius: 10
+    },
+    comment: {
+      paddingLeft: 150,
+      color: '#000000'
+  },
+    buttonText: {
+    padding: 500
+    },
+    goingButton: {
+      backgroundColor: '#D8232F',
+      height: 30,
+      borderRadius: 10,
+      paddingLeft: 140
+    },
+    createEventButton: {
+      backgroundColor: '#008000',
+      height: 30,
+      borderRadius: 10,
+      paddingLeft: 140
     },
     companyName: {
       color: 'white',
@@ -606,6 +734,7 @@ console.log("Document written with ID: ", docRef.id);
       width: 150,
       padding: 10
     },
+   
     stateView: {
       marginTop: 30
       
@@ -626,5 +755,39 @@ console.log("Document written with ID: ", docRef.id);
       borderRadius: 20,
       padding: 35,
       alignItems: "center",
+    },
+    selectButton: {
+      borderRadius: 5,
+      width: 150,
+      height: 50,
+      backgroundColor: '#8ac6d1',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    uploadButton: {
+      borderRadius: 5,
+      width: 150,
+      height: 50,
+      backgroundColor: '#ffb6b9',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 20
+    },
+    buttonText: {
+      color: 'white',
+      fontSize: 18,
+      fontWeight: 'bold'
+    },
+    imageContainer: {
+      marginTop: 30,
+      marginBottom: 50,
+      alignItems: 'center'
+    },
+    progressBarContainer: {
+      marginTop: 20
+    },
+    imageBox: {
+      width: 300,
+      height: 300
     }
   });

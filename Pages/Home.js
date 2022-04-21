@@ -167,39 +167,42 @@ useEffect(() => {
           secureTextEntry>
             </TextInput>
 
-            <Button style = {styles.buttonBorder}
-            title="Forgot Password"
-            color='#D8232F'
-            onPress={forgotPassword}
-          />
+          <TouchableHighlight 
+            onPress={forgotPassword}>
+              <View style = {styles.forgotBussButton}>
+                <Text style = {styles.forgotBussPadd}>Forgot Password</Text>
+              </View>
+            </TouchableHighlight>
  
         </View>
 
-        <View  style = {styles.BussinessLogin}>
-          <Button style = {styles.buttonBorder}
-            title="Bussiness Login"
-            color='#D8232F'
-            onPress={() => navigation.navigate("BussHome")}
-          />
+        <View style = {styles.BussinessLogin}>
+          <TouchableHighlight
+          onPress={() => navigation.navigate("BussHome")}>
+            <View style = {styles.forgotBussButton}>
+              <Text style = {styles.forgotBussPadd}>Bussiness Login</Text>
+            </View>
+          </TouchableHighlight>
         </View>
   
         <View style = {styles.loginButton}>
   
           <View style = {styles.signUpButtonView}>
-          <Button style = {styles.buttonBorder}
-            title="Sign Up!"
-            color='#D8232F'
-            borderRadius = '10'
-            onPress={onRegister}
-          />
+            <TouchableHighlight style = {styles.signUpLoginTouch}
+            onPress={onRegister}>
+              <View style = {styles.forgotBussButton}>
+                <Text style = {styles.signUpPadd}>Sign Up!</Text>
+              </View>
+            </TouchableHighlight>
           </View>
           
           <View style = {styles.signUpButtonView}>
-          <Button style = {styles.buttonBorder}
-            title="Login"
-            color='#D8232F'
-            onPress={userLogin}
-          />
+          <TouchableHighlight style = {styles.signUpLoginTouch}
+            onPress={userLogin}>
+              <View style = {styles.forgotBussButton}>
+                <Text style = {styles.loginPadd}>Login</Text>
+              </View>
+            </TouchableHighlight>
           </View>
           
 
@@ -241,6 +244,15 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'serif',
     fontSize: 35
+  },
+  forgotBussButton: {
+    backgroundColor: '#D8232F',
+    height: 30,
+    borderRadius: 10
+  },
+  forgotBussPadd: {
+    paddingLeft: 45,
+    paddingTop: 7
   },
   localEvents: {
     color: 'white',
@@ -323,6 +335,17 @@ const styles = StyleSheet.create({
    marginTop: 230,
    marginBottom: 70
   },
+  signUpLoginTouch: {
+    width: 100
+  },
+  signUpPadd: {
+    paddingLeft: 20,
+    paddingTop: 7
+  },
+  loginPadd: {
+    paddingLeft: 25,
+    paddingTop: 7
+  },
   loginInput: {
     backgroundColor: '#C9C9C9',
     color: '#000000',
@@ -336,7 +359,7 @@ const styles = StyleSheet.create({
    paddingTop: 30
   },
   signUpButtonView: {
-  paddingRight: 20
+  paddingRight: 10
   },
   forgotPassButtonView : {
      

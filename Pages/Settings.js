@@ -73,6 +73,14 @@ const Settings = () => {
     }
   };
 
+  const uploadImage3 = async () => {
+    console.log("Entered Upload Image");
+    console.log(image.name);
+      const imageRef =ref(storage,`assests/ProfilePicture/${image.name}`)
+      uploadBytes(imageRef, image);
+      console.log("Image Uploaded");
+  }
+
   return (
 
     <View style={styles.container}>
@@ -106,14 +114,16 @@ const Settings = () => {
      <TextInput>Model</TextInput>
      <TextInput>Modifications</TextInput>
 
-     <Button title="Pick an image from camera roll" onPress={pickImage} />
+     <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+            <Text style={styles.buttonText}>Pick an image from camera roll</Text>
+          </TouchableOpacity>
       {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-
-     <Button
-     title='Submit Data'></Button>
-
-<Button
-     title='Delete Account'></Button>
+      <TouchableOpacity style={styles.uploadButton} onPress={uploadImage3}>
+            <Text style={styles.buttonText}>Upload image</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.uploadButton} onPress={uploadImage3}>
+            <Text style={styles.buttonText}>Delete Account</Text>
+          </TouchableOpacity>
      
     </View>
   
@@ -134,6 +144,20 @@ const Settings = () => {
       flex: 1,
       justifyContent: 'space-between',
       paddingRight: 10
+    },
+    uploadButton: {
+      borderRadius: 5,
+      width: 150,
+      height: 50,
+      backgroundColor: '#ffb6b9',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 20
+    },
+    buttonText: {
+      color: 'white',
+      fontSize: 18,
+      fontWeight: 'bold'
     },
     listCategories: {
       backgroundColor: 'red'

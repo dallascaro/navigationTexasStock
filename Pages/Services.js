@@ -8,7 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import ScrollPicker from 'react-native-wheel-scrollview-picker';
 //import Carousel from 'react-native-snap-carousel';
-import { FlatList, TextInput } from 'react-native-gesture-handler';
+import { FlatList, TextInput, TouchableHighlight } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
 import {getDownloadURL} from "firebase/storage";
 import { db, pathReference2, profilePicRef, jeremyPic} from "../firebase";
@@ -50,6 +50,10 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
 
   const [publishableKey, setPublishableKey] = useState('');
 
+   // Remove these before posting will need to make sure the API is called to gather
+   const publishablekey1 = 'pk_test_51KjSdtA385jgfbdFAOiuVV0qWz2neeBenX9fsMzrDIjHjdIHONLGwmQtNAYpN5ZARRAU2YDn6EOSKo7BrrkFUTtF00X42W8Ybl'
+   const secretKey = 'sk_test_51KjSdtA385jgfbdF00AvxPl3brBegiPgTZneEqNbcwu1NTqJ8egqb1L8p7AeU5tMoZkT5mc0Wf4lAmYHAlvLSJAp00Hv7PcJo0'
+
   // Set the environment before the payment request
 //GooglePay.setEnvironment(GooglePay.ENVIRONMENT_TEST);
 
@@ -59,10 +63,7 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
   }, []);
 
   const init = async () => {
-    const publishableKey = await fetchPublishableKey()
-    if(publishableKey) {
-      setPublishableKey(publishableKey)
-    }
+      setPublishableKey(publishablekey1)
   }
 
   const requestData = {
@@ -111,7 +112,7 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
 
   const pay = async () => {
     Alert.alert('Entered Pay Method')
-    const clientSecret = await fetchPaymentIntentClientSecret();
+    const clientSecret = secretKey;
    // Need to correct Fetch
 
     const { error } = await presentGooglePay({
@@ -127,22 +128,6 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
     Alert.alert('Success', 'The payment was confirmed successfully.');
   };
 
-  const PullData = async () => {
-    const myDoc = collection(db, 'Company Info')
-    const snapShot = await getDocs(myDoc);
-    const snapList = snapShot.docs.map(doc => doc.data());
-    setEventList(snapList)
-  }
-
-  const userProfile = async () => { 
-    // Add a new document with a generated id.
-  const docRef = await addDoc(collection(db, "Profile Images"), {
-  url: imageUrl
-});
-
-console.log("Document written with ID: ", docRef.id);
-
-  }
 
   const payment = async () => {
     Alert.alert('Entered')
@@ -201,15 +186,27 @@ console.log("Document written with ID: ", docRef.id);
           style = {styles.cardField} 
           />
 
-          <Button
-          title = "Pay Now"
-          onPress={payment} disabled= {loading}></Button>
+            <TouchableHighlight
+            onPress={payment} disabled = {loading}>
+              <View>
+                <Text>Pay Now</Text>
+              </View>
+            </TouchableHighlight>
         </View>
 
+        <View>
+
+        </View>
+         
+          
+
         <View >
-          <Button
-            title = 'Pay'
-            onPress={pay} ></Button>
+            <TouchableHighlight
+            onPress={pay}>
+              <View>
+                <Text>Pay</Text>
+              </View>
+            </TouchableHighlight>
         </View>
       </StripeProvider>
        

@@ -60,8 +60,6 @@ const Profile = ({navigation}) => {
     }
   };
 
- 
-
   const PullData = async () => {
     const myDoc = collection(db, 'Users Events')
     const snapShot = await getDocs(myDoc);
@@ -199,7 +197,8 @@ console.log("Document written with ID: ", docRef.id);
 
   const uploadImage3 = async () => {
     console.log("Entered Upload Image");
-      const imageRef = ref(storage, 'assests/ProfilePicture/${imageUpload.name + v4()}');
+    console.log(image.name);
+      const imageRef =ref(storage,`assests/ProfilePicture/${image.name}`)
       uploadBytes(imageRef, image);
       console.log("Image Uploaded");
   }
@@ -272,10 +271,11 @@ console.log("Document written with ID: ", docRef.id);
         quality: 1,
       });
   
-      console.log(result);
+      console.log( "Image Results" ,result);
   
       if (!result.cancelled) {
         setImage(result.uri);
+        console.log(image);
       }
     };
 
@@ -358,12 +358,11 @@ console.log("Document written with ID: ", docRef.id);
             <Text style = {styles.eventText}>{item.username}</Text>
           </View>
 
-          <Button
-                    title="Comment!"
-                    color='#D8232F'
-                    onPress={() => navigation.navigate("Comments")}
-                  />
-
+          <TouchableHighlight onPress={() => navigation.navigate("Comments")}>
+                  <View style={styles.goingButton}>
+                    <Text style={styles.buttonText}>Comment</Text>
+                  </View>
+                </TouchableHighlight>
 
           <View style = {styles.eventButton}>
 
@@ -400,11 +399,13 @@ console.log("Document written with ID: ", docRef.id);
               />
         </ScrollView>
 
-        <Button
-                    title="Sign Out!"
-                    color='#D8232F'
-                    onPress={SignOut}
-                  />
+                  
+          <TouchableHighlight onPress={SignOut}>
+                  <View style={styles.goingButton}>
+                    <Text style={styles.buttonText}>Sign Out!</Text>
+                  </View>
+                </TouchableHighlight>
+
        
         <Text style = {styles.pageName}>Attending</Text>
         
@@ -436,7 +437,9 @@ console.log("Document written with ID: ", docRef.id);
 
     <View style = {styles.imageContainer}>
     <Text>Interested</Text>
-            <Button title="Pick an image from camera roll" onPress={pickImage} />
+    <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+            <Text style={styles.buttonText}>Pick an image from camera roll</Text>
+          </TouchableOpacity>
       {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
       <TouchableOpacity style={styles.uploadButton} onPress={uploadImage3}>
             <Text style={styles.buttonText}>Upload image</Text>
@@ -478,16 +481,12 @@ console.log("Document written with ID: ", docRef.id);
         <Text  style = {styles.pageName}>My Events</Text>
         </View>
 
-      
-
-        
-
-<Button
-                    title="Create Event!"
-                    color='#17E217'
-                    onPress={() => navigation.navigate("CreateEvent")}
-                    
-                  />
+                           
+          <TouchableHighlight  onPress={() => navigation.navigate("CreateEvent")}>
+                  <View style={styles.createEventButton}>
+                    <Text style={styles.buttonText}>Create Event!</Text>
+                  </View>
+                </TouchableHighlight>
 
 <ScrollView style = {styles.eventDetails}>
           <View>
@@ -564,8 +563,24 @@ console.log("Document written with ID: ", docRef.id);
       height: 30,
       borderRadius: 10
     },
+    comment: {
+      paddingLeft: 150,
+      color: '#000000'
+  },
     buttonText: {
-    
+    padding: 500
+    },
+    goingButton: {
+      backgroundColor: '#D8232F',
+      height: 30,
+      borderRadius: 10,
+      paddingLeft: 140
+    },
+    createEventButton: {
+      backgroundColor: '#008000',
+      height: 30,
+      borderRadius: 10,
+      paddingLeft: 140
     },
     companyName: {
       color: 'white',

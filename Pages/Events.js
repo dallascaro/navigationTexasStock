@@ -188,12 +188,11 @@ console.log("Document written with ID: ", docRef.id);
           <Text style = {styles.eventText}>{item.username}</Text>
         </View>
 
-        <Button
-                  title="Comment!"
-                  color='#D8232F'
-                  onPress={() => navigation.navigate("Comments")}
-                />
-
+        <TouchableHighlight onPress={() => navigation.navigate("Comments")}>
+                  <View style={styles.goingButton}>
+                    <Text style={styles.comment}>Comment</Text>
+                  </View>
+                </TouchableHighlight>
 
         <View style = {styles.eventButton}>
 
@@ -324,6 +323,10 @@ console.log("Document written with ID: ", docRef.id);
      },
     scroller: {
       backgroundColor: 'white'
+    },
+    comment: {
+        paddingLeft: 150,
+        color: '#000000'
     },
     goingButton: {
       backgroundColor: '#D8232F',

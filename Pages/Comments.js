@@ -56,7 +56,7 @@ console.log("Document written with ID: ", docRef.id);
   }
 
   const PullUserComments = async () => {
-    const myDoc = collection(db, 'User Replies')
+    const myDoc = collection(db, 'User Comments')
     const snapShot = await getDocs(myDoc);
     const snapList = snapShot.docs.map(doc => doc.data());
     setReplies(snapList)

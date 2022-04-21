@@ -19,6 +19,8 @@ import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore/lit
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const eventsTNum = 4;
+
 const screenOptionStyle = {
   headerStyle: {
     backgroundColor: "#9AC4F8",
@@ -27,6 +29,11 @@ const screenOptionStyle = {
   headerBackTitle: "Back",
 };
 
+const PullData = async () => {
+  const myDoc = collection(db, 'BarNotification')
+  const snapShot = await getDocs(myDoc);
+  const snapList = snapShot.docs.map(doc => doc.data());
+}
 
 const MainStackNavigator = () => {
   return (
@@ -80,6 +87,10 @@ const EventsStackNavigator = () => {
   };
 
 const TabNavigator = () => {
+  const eventsTNum = 4;
+  const profileNum = 8;
+  const servicesNum = 2;
+  
   return (
     <Tab.Navigator>
       <Tab.Screen name="EventsT" 
@@ -87,27 +98,29 @@ const TabNavigator = () => {
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="car" color={color} size={size} />
-        ),headerShown: false, tabBarBadge: '1'}}
+        ),headerShown: false, tabBarBadge: eventsTNum}}
       />
       <Tab.Screen name="Profile" 
       component={ProfileStackNavigator} 
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="home-account" color={color} size={size} />
-        ),headerShown: false,  tabBarBadge: '2'}}
+        ),headerShown: false,  tabBarBadge: profileNum}}
       />
       <Tab.Screen name="Services" 
       component={ServicesStackNavigator }
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="hammer-wrench" color={color} size={size} />
-        ),headerShown: false,  tabBarBadge: '3'}}
+        ),headerShown: false,  tabBarBadge: servicesNum}}
       />
     </Tab.Navigator>
   );
 };
 
 const BussTabNavigator = () => {
+  const bussEventsTNum = 2;
+  const bussProfileNum = 5;
   return (
     <Tab.Navigator>
       <Tab.Screen name="EventsTB" 
@@ -115,14 +128,14 @@ const BussTabNavigator = () => {
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="car" color={color} size={size} />
-        ),headerShown: false, tabBarBadge: '5'}}
+        ),headerShown: false, tabBarBadge: bussEventsTNum}}
       />
       <Tab.Screen name="BussProfile" 
       component={BussStackNavigator} 
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="home-account" color={color} size={size} />
-        ),headerShown: false,  tabBarBadge: '2'}}
+        ),headerShown: false,  tabBarBadge: bussProfileNum}}
       />
     </Tab.Navigator>
   );
