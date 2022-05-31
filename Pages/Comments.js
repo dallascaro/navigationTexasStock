@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, FlatList, Alert, ActivityIndicator, Share, Modal, Pressable} from 'react-native';
+import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, FlatList, Alert, ActivityIndicator, Share, Modal, Pressable, Dimensions} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -12,6 +12,11 @@ import { db, writeUserData } from "../firebase";
 import { collection, getDocs, addDoc } from "firebase/firestore/lite";
 
 const Comments = ({navigation}) => {
+
+  const window = Dimensions.get('window');
+  const screen = Dimensions.get('screen');
+
+  const [dimensions, setDimensions] = useState({window, screen});
 
     const[userComment, setComment] = React.useState("Comment");
     const [userEmail, setEmail] = useState([]);
@@ -90,6 +95,18 @@ console.log("Document written with ID: ", docRef.id);
 
     )
   }
+
+  useEffect(() => {
+    const screenSize = Dimensions.addEventListener(
+      "change",
+      ({window, screen}) => {
+        setDimensions({window, screen});
+      }
+    );
+    console.log(dimensions);
+    return () => screenSize?.remove();
+    
+  })
 
     return(
       <View  style = {styles.container}  >

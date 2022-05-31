@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableOpacity} from 'react-native';
+import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableOpacity, Dimensions} from 'react-native';
 //import {Picker} from '@react-native-picker/picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -34,6 +34,11 @@ import { GooglePay } from 'react-native-google-pay';
 
 const Services = ({navigation}) => {
 
+  const window = Dimensions.get('window');
+  const screen = Dimensions.get('screen');
+
+  const [dimensions, setDimensions] = useState({window, screen});
+
   const [servicesPageNum] = React.useState(3);
 
   const {
@@ -61,6 +66,18 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
   React.useEffect(() => {
     init();
   }, []);
+
+  useEffect(() => {
+    const screenSize = Dimensions.addEventListener(
+      "change",
+      ({window, screen}) => {
+        setDimensions({window, screen});
+      }
+    );
+    console.log(dimensions);
+    return () => screenSize?.remove();
+    
+  })
 
   const init = async () => {
       setPublishableKey(publishablekey1)

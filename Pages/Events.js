@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, FlatList, Share, Modal, Pressable,  TouchableHighlight} from 'react-native';
+import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, FlatList, Share, Modal, Pressable,  TouchableHighlight, Dimensions} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -13,7 +13,12 @@ import RNPickerSelect from 'react-native-picker-select';
 import { db, writeUserData } from "../firebase";
 import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore/lite";
 
-const Events = ({navigation}) => {
+const Events = ({navigation, item}) => {
+
+  const window = Dimensions.get('window');
+  const screen = Dimensions.get('screen');
+
+  const [dimensions, setDimensions] = useState({window, screen});
 
   const[userComment, setComment] = React.useState("Comment");
 
@@ -23,7 +28,12 @@ const Events = ({navigation}) => {
 
   const [location, setLocation] = React.useState("Location");
 
-  const [locations, setLocations] = React.useState("Locations");
+  const locationTest = "Midland";
+
+  const [odessaEvents, setOdessaEvents] = React.useState("Odessa");
+  const [midlandEvents, setMidlandEvents] = React.useState("Midland");
+
+  const [events, setEvents] = React.useState("Events");
 
   const [userEmail, setEmail] = useState([]);
 
@@ -37,7 +47,20 @@ const Events = ({navigation}) => {
    useEffect(() => {
     PullData();
     PullUserEmail();
+    PullLocations();
   }, []);
+
+  // useEffect(() => {
+  //   const screenSize = Dimensions.addEventListener(
+  //     "change",
+  //     ({window, screen}) => {
+  //       setDimensions({window, screen});
+  //     }
+  //   );
+  //   //console.log(dimensions);
+  //   return () => screenSize?.remove();
+    
+  // })
 
   const renderUserEmail = ({ item }) => {
     return(
@@ -59,14 +82,39 @@ const Events = ({navigation}) => {
     const goingSnapList = goingSnapShot.docs.map(doc => doc.data());
     setGoingList(goingSnapList)
 
+    console.log("Location for data", location);
+    const myDocLocation = collection(db, `Events/Texas/${location}`)
+    const snapShotLocation = await getDocs(myDocLocation);
+    const snapListLocation = snapShotLocation.docs.map(doc => doc.data());
+    setEvents(snapListLocation)
+    console.log(snapListLocation);
+
+    console.log("Location Events", events)
+
+    const myDocOdessa = collection(db, "Events/Texas/Odessa")
+    const snapShotOdessa = await getDocs(myDocOdessa);
+    const snapListOdessa = snapShotOdessa.docs.map(doc => doc.data());
+    setOdessaEvents(snapListOdessa)
+
+    const myDocMidland = collection(db, "Events/Texas/Midland")
+    const snapShotMidland = await getDocs(myDocMidland);
+    const snapListMidland = snapShotMidland.docs.map(doc => doc.data());
+    setMidlandEvents(snapListMidland)
+
+    //console.log("Odessa Events", snapListOdessa);
+    //console.log("Midland Events", snapListMidland);
+
   }
 
   const PullLocations= async () => {
-    const myDoc = collection(db, "Locations")
-    const snapShot = await getDocs(myDoc);
-    const snapList = snapShot.docs.map(doc => doc.data());
-    setLocations(snapList)
-    console.log(snapList);
+    console.log("Location for data", location);
+    const myDocLocation = collection(db, `Events/Texas/${location}`)
+    const snapShotLocation = await getDocs(myDocLocation);
+    const snapListLocation = snapShotLocation.docs.map(doc => doc.data());
+    setEvents(snapListLocation)
+    console.log(snapListLocation);
+
+    console.log("Location Events", events)
   }
 
   const PullUserEmail = async () => {
@@ -270,9 +318,9 @@ console.log("Document written with ID: ", docRef.id);
               (value) => setLocation(value)
             }
             items={[
-                { label: 'Midland, Texas', value: 'Midland Texas' },
-                { label: 'Odessa, Texas', value: 'Odessa Texas' },
-                { label: 'Andrews, Texas', value: 'Andrews Texas' },
+                { label: 'Midland, Texas', value: 'Midland' },
+                { label: 'Odessa, Texas', value: 'Odessa' },
+                { label: 'Andrews, Texas', value: 'Andrews' },
                 { label: 'Monahans, Texas', value: 'Monahans Texas' },
                 { label: 'Big Spring, Texas', value: 'Big Spring Texas' },
                 { label: 'Fort Stockton, Texas', value: 'Fort Stockton Texas' },

@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Picker, StyleSheet, SafeAreaView, FlatList, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable,  TouchableOpacity} from 'react-native';
+import { Button, Text, View, Picker, StyleSheet, SafeAreaView, FlatList, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable,  TouchableOpacity, Dimensions} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -16,6 +16,11 @@ import * as ImagePicker from 'expo-image-picker';
 
 
 const Settings = () => {
+
+  const window = Dimensions.get('window');
+  const screen = Dimensions.get('screen');
+
+  const [dimensions, setDimensions] = useState({window, screen});
 
   const [image, setImage] = useState(null);
 
@@ -80,6 +85,18 @@ const Settings = () => {
       uploadBytes(imageRef, image);
       console.log("Image Uploaded");
   }
+
+  useEffect(() => {
+    const screenSize = Dimensions.addEventListener(
+      "change",
+      ({window, screen}) => {
+        setDimensions({window, screen});
+      }
+    );
+    console.log(dimensions);
+    return () => screenSize?.remove();
+    
+  })
 
   return (
 

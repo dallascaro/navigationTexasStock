@@ -40,28 +40,16 @@ const db = getFirestore(app);
 // Get a reference to the storage service, which is used to create references in your storage bucket
 const storage = getStorage(app);
 // Create a storage reference from our storage service
-const storageRef = ref(storage);
+//const storageRef = ref(storage);
 
-const pathReference = ref(storage, 'TestPictures/BerryPic1.png');
+//const pathReference = ref(storage, 'TestPictures/BerryPic1.png');
 // Create a reference from an HTTPS URL
 // Note that in the URL, characters are URL escaped!
-const pathReference2 = ref(storage, 'gs://texasstockrally-aaae6.appspot.com/assests/ProfilePicture/profilePic.png');
+//const pathReference2 = ref(storage, 'gs://texasstockrally-aaae6.appspot.com/assests/ProfilePicture/profilePic.png');
 
 //Create a reference to upload pic
-const profilePicRef = ref(storage, 'assests/ProfilePicture/profilePic.png');
+//const profilePicRef = ref(storage, 'assests/ProfilePicture/profilePic.png');
 
-// Create file variable to upload files
-const fileUpload = 'gs://texasstockrally-aaae6.appspot.com/assests/ProfilePicture';
-
-
-// Upload the file and metadata
-const uploadTask = uploadBytesResumable(profilePicRef, fileUpload);
-
-uploadBytes(pathReference)
-
-// Create a reference to pull jeremys pic
-const jeremyPic = ref(storage, 'gs://texasstockrally-aaae6.appspot.com/TestPictures/demon1.jpg');
-
-export {auth, db, storage, storageRef, pathReference2, profilePicRef, jeremyPic};
+export {auth, db, storage};
 export default getFirestore(app);
 //Test comment from Jeremy

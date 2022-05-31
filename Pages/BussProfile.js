@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, SafeAreaView, Share, Modal, Pressable, TouchableHighlight, TouchableOpacity, Platform} from 'react-native';
+import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, SafeAreaView, Share, Modal, Pressable, TouchableHighlight, TouchableOpacity, Platform, Dimensions} from 'react-native';
 //import {Picker} from '@react-native-picker/picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -30,6 +30,11 @@ import { signOut } from 'firebase/auth';
 import {v4} from "react-native-uuid"
 
 const BussProfile = ({navigation}) => {
+
+  const window = Dimensions.get('window');
+  const screen = Dimensions.get('screen');
+
+  const [dimensions, setDimensions] = useState({window, screen});
 
   
   const[userComment, setComment] = React.useState("Comment");
@@ -241,6 +246,18 @@ console.log("Document written with ID: ", docRef.id);
         + ' ' + hours + ':' + min + ':' + sec
       );
     }, []);
+
+    useEffect(() => {
+      const screenSize = Dimensions.addEventListener(
+        "change",
+        ({window, screen}) => {
+          setDimensions({window, screen});
+        }
+      );
+      console.log(dimensions);
+      return () => screenSize?.remove();
+      
+    })
 
     const [modalVisible, setModalVisible] = useState(false);
     

@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableHighlight} from 'react-native';
+import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableHighlight, Dimensions} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -14,6 +14,11 @@ import { db, writeUserData } from "../firebase";
 import { collection, getDocs, addDoc } from "firebase/firestore/lite";
 
 const Home = ({ navigation }) => {
+
+  const window = Dimensions.get('window');
+  const screen = Dimensions.get('screen');
+
+  const [dimensions, setDimensions] = useState({window, screen});
 
   const[email, setEmail] = React.useState("Email");
   const[password, setPassword] = React.useState("Password");
@@ -144,6 +149,18 @@ useEffect(() => {
   );
 }, []);
 
+useEffect(() => {
+  const screenSize = Dimensions.addEventListener(
+    "change",
+    ({window, screen}) => {
+      setDimensions({window, screen});
+    }
+  );
+  console.log(dimensions);
+  return () => screenSize?.remove();
+  
+})
+
     return(
       <View style = {styles.container}>
          
@@ -224,6 +241,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    height: window.height,
+    width: window.width
   },
   headBanner: {
     flex: 1,

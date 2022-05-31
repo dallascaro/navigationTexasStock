@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, SafeAreaView, Share, Modal, Pressable, TouchableHighlight, TouchableOpacity, Platform} from 'react-native';
+import { Button, Math, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, SafeAreaView, Share, Modal, Pressable, TouchableHighlight, TouchableOpacity, Platform, Dimensions} from 'react-native';
 //import {Picker} from '@react-native-picker/picker';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -10,9 +10,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import Carousel from 'react-native-snap-carousel';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
-import {getDownloadURL} from "firebase/storage";
-import { db, pathReference2, profilePicRef, jeremyPic, storage, storageRef} from "../firebase";
-import { uploadBytes, ref } from '@firebase/storage';
+import { db, storage, storageRef} from "../firebase";
+import { uploadBytes, ref, uploadBytesResumable, getDownloadURL } from '@firebase/storage';
 import { collection, getDocs, addDoc} from "firebase/firestore/lite";
 // To pick the file from local file system
 import DocumentPicker, {
@@ -31,6 +30,12 @@ import {v4} from "react-native-uuid"
 
 const Profile = ({navigation}) => {
 
+  const window = Dimensions.get('window');
+  const screen = Dimensions.get('screen');
+
+  const [dimensions, setDimensions] = useState({window, screen});
+
+  const [progress, setProgress] = useState(0)
   
   const[userComment, setComment] = React.useState("Comment");
 
@@ -129,79 +134,28 @@ console.log("Document written with ID: ", docRef.id);
     });
   };
 
-  const  uploadImage = () => {
-    const ext = this.state.imageUri.split('.').pop(); // Extract image extension
-    const filename = `${uuid()}.${ext}`; // Generate unique name
-    this.setState({ uploading: true });
-    firebase
-      .storage()
-      .ref(`TestPictures/${filename}`)
-      .putFile(this.state.imageUri)
-      .on(
-        firebase.storage.TaskEvent.STATE_CHANGED,
-        snapshot => {
-          let state = {};
-          state = {
-            ...state,
-            progress: (snapshot.bytesTransferred / snapshot.totalBytes) * 100 // Calculate progress percentage
-          };
-          if (snapshot.state === firebase.storage.TaskState.SUCCESS) {
-            const allImages = this.state.images;
-            allImages.push(snapshot.downloadURL);
-            state = {
-              ...state,
-              uploading: false,
-              imgSource: '',
-              imageUri: '',
-              progress: 0,
-              images: allImages
-            };
-            AsyncStorage.setItem('images', JSON.stringify(allImages));
-          }
-          this.setState(state);
-        },
-        error => {
-          unsubscribe();
-          alert('Sorry, Try again.');
-        }
-      );
-  };
 
-  const uploadImage2 = async () => {
-    const { uri } = image;
-    const filename = uri.substring(uri.lastIndexOf('/') + 1);
-    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-    setUploading(true);
-    setTransferred(0);
-    const task = storage()
-      .ref(filename)
-      .putFile(uploadUri);
-    // set progress state
-    task.on('state_changed', snapshot => {
-      setTransferred(
-        Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
-      );
-    });
-    try {
-      await task;
-    } catch (e) {
-      console.error(e);
-    }
-    setUploading(false);
-    Alert.alert(
-      'Photo uploaded!',
-      'Your photo has been uploaded to Firebase Cloud Storage!'
-    );
-    setImage(null);
-  };
 
   const uploadImage3 = async () => {
     console.log("Entered Upload Image");
-    console.log(image.name);
-      const imageRef =ref(storage,`assests/ProfilePicture/${image.name}`)
-      uploadBytes(imageRef, image);
-      console.log("Image Uploaded");
+    const imageString = image.substring(image.lastIndexOf('/') + 1);
+    console.log("Image",image);
+    console.log("Image String",imageString);
+      const imageRef =ref(storage,`gs://texasstockrally-aaae6.appspot.com/assests/ProfilePicture/${imageString}`)
+      const StorageLocation = putFile(image);
+      //ref(storage,`assests/ProfilePicture/${imageString}`)
+      //ref.putFile("Whats uploaded, whole uri",image);
+      const uploadTask = uploadBytesResumable(imageRef, image);
+      uploadTask.on('state_changed', (snapshot) => {
+        const prog = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setProgress(prog);
+        
+      })
+      console.log("Image Uploaded", );
   }
+  
 
     //Call when component is rendered
     useEffect(() => {
@@ -218,6 +172,18 @@ console.log("Document written with ID: ", docRef.id);
         + ' ' + hours + ':' + min + ':' + sec
       );
     }, []);
+
+    useEffect(() => {
+      const screenSize = Dimensions.addEventListener(
+        "change",
+        ({window, screen}) => {
+          setDimensions({window, screen});
+        }
+      );
+      console.log(dimensions);
+      return () => screenSize?.remove();
+      
+    })
 
     const [modalVisible, setModalVisible] = useState(false);
     
@@ -279,6 +245,18 @@ console.log("Document written with ID: ", docRef.id);
       }
     };
 
+    const pickImage2 = async => {
+      ImagePicker.openPicker({
+        width: 1200,
+        height: 780,
+        cropping: true,
+      }).then((image) => {
+        console.log(image);
+        const imageUri = Platform.OS === 'ios' ? image.sourceURL: image.path;
+        setImage(imageUri);
+        console.log(imageUri);
+      });
+    };
     
 
     const renderItem = ({ item }) => {
