@@ -8,10 +8,10 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import ScrollPicker from 'react-native-wheel-scrollview-picker';
 //import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native-gesture-handler';
-import {auth} from '../firebase'
 import { sendPasswordResetEmail } from "firebase/auth";
-import { db, writeUserData } from "../firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore/lite";
+import { db, auth } from "../firebase";
+import { query, where, QueryDocumentSnapshot, QuerySnapshot, onSnapshot, setDoc, doc, collection, addDoc, serverTimestamp} from "firebase/firestore";
+import { update } from 'firebase/database';
 
 const Home = ({ navigation }) => {
 
@@ -20,8 +20,8 @@ const Home = ({ navigation }) => {
 
   const [dimensions, setDimensions] = useState({window, screen});
 
-  const[email, setEmail] = React.useState("Email");
-  const[password, setPassword] = React.useState("Password");
+  const[email, setEmail] = React.useState(null);
+  const[password, setPassword] = React.useState(null);
 
   const[user] = React.useState("User");
 
@@ -68,7 +68,7 @@ const Home = ({ navigation }) => {
   };
   
 
-  const signUp = () => {
+  const signUp =  () => {
     auth.createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
         // Signed in 
@@ -93,36 +93,55 @@ const Home = ({ navigation }) => {
       navigation.navigate("EventsT")
   }
 
-  const userLogin = () => {
+  const userLogin2 = () => {
+    try{
     auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       // Signed in 
-       user = userCredential.user;
-      console.log('Signed In User')
+      //console.log(userCredential)
+      const user = userCredential.user;
+     
+      const profileDoc = setDoc(doc(db, "User SignIn", auth.currentUser.uid),{
+        email: email,
+        signedIn: "yes",
+        time: serverTimestamp()
+      });
       // ...
+      alert("signed in")
+      navigation.navigate("EventsT")
     })
-    .catch((error) => {
-      console.log('Failed to sign in User')
+  }catch(error) {
+      alert(errorCode)
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(errorCode)
       console.log(errorMessage)
       // ..
-  
-      const docRef = addDoc(collection(db, "User SignIn"), {
-        email: email,
-        time: currentDate,
-        signedIn: 'yes'
-      });
-
-      console.log("Document written with ID: ", docRef.id);
-     
-    });
-
-    navigation.navigate("EventsT")
+    };
 
   }
 
+
+  const userLogin = async () => {
+    try{
+    auth.signInWithEmailAndPassword(email, password);
+      //const userRef = collection(db, "User SignIn");
+      //const userLoggedIn = query(userRef, where('email', "==", email));
+
+      //const signInEmail = query(collection(db, 'User SignIn'), where('email', '==', email))
+     
+      const updateSignIn = setDoc(doc(db, "User SignIn", auth.currentUser.uid), {
+        email: email,
+        signedIn: 'yes',
+        time: currentDate 
+      })
+
+  } catch(error){
+    console.log("Error", error)
+  }
+  navigation.navigate("EventsT")
+  console.log('Signed In User')
+  };
 
   const forgotPassword = () => {
 
@@ -215,7 +234,7 @@ useEffect(() => {
           
           <View style = {styles.signUpButtonView}>
           <TouchableHighlight style = {styles.signUpLoginTouch}
-            onPress={userLogin}>
+            onPress={userLogin2}>
               <View style = {styles.forgotBussButton}>
                 <Text style = {styles.loginPadd}>Login</Text>
               </View>
@@ -233,8 +252,9 @@ useEffect(() => {
       </View>
     );
   }
-
+  
 export default Home;
+
 
 const styles = StyleSheet.create({
   container: {

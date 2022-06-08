@@ -10,6 +10,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import { db, writeUserData } from "../firebase";
 import { collection, getDocs, addDoc } from "firebase/firestore/lite";
+import uuid from 'react-native-uuid';
 
 const CreateEvent = ({navigation}) => {
 
@@ -24,19 +25,27 @@ const CreateEvent = ({navigation}) => {
   const[eventState, setState] = React.useState("State");
   const[eventTitle, setTitle] = React.useState("Title");
   const[eventDescription, setDescription] = React.useState("Description");
+  const[eventAddress, setAddress] = React.useState("Address");
   const [userEmail, setEmail] = useState([]);
+  const [eventID, setEventID] = useState([]);
+  const [currentDate, setCurrentDate] = useState('');
+  
 
   const createEvent = async () => { 
     // Add a new document with a generated id.
-  const docRef = await addDoc(collection(db, "Users Events"), {
+    setEventID(uuid.v4())
+    console.log("Event ID",eventID);
+  const docRef = await addDoc(collection(db, `Events/${eventState}/${eventCity}`), {
   username: "Dallas",
   date: eventDate,
   time: eventTime,
   city: eventCity,
   state: eventState,
   title: eventTitle,
-  description: eventDescription
-  
+  description: eventDescription,
+  address: eventAddress,
+  eventID: eventID,
+  timeOfCreation: currentDate
 });
 const ordersCol = collection(db, 'Users Events')
     const ordersSnapshot = await getDocs(ordersCol)
@@ -58,6 +67,16 @@ console.log("Document written with ID: ", docRef.id);
     //Call when component is rendered
     useEffect(() => {
       PullUserEmail();
+      var date = new Date().getDate(); //Current Date
+      var month = new Date().getMonth() + 1; //Current Month
+      var year = new Date().getFullYear(); //Current Year
+      var hours = new Date().getHours(); //Current Hours
+      var min = new Date().getMinutes(); //Current Minutes
+      var sec = new Date().getSeconds(); //Current Seconds
+      setCurrentDate(
+        date + '/' + month + '/' + year 
+        + ' ' + hours + ':' + min + ':' + sec
+      );
     }, []);
 
     useEffect(() => {
@@ -144,6 +163,15 @@ console.log("Document written with ID: ", docRef.id);
          </View>
         </View>
 
+        <View style = {styles.eventData}>
+        <Text style = {styles.eventText}>Address     </Text>
+          <View style = {styles.eventInput}>
+            <TextInput style = {styles.eventTextInput}
+            onChangeText = {setAddress}>Address</TextInput>
+         </View>
+        </View>
+
+        
         <View style = {styles.eventButton}>
          
           <View style = {styles.eventDetails}>
@@ -151,13 +179,6 @@ console.log("Document written with ID: ", docRef.id);
             title="Post"
             color='#17E217'
             onPress={createEvent} 
-            />
-          </View>
-          <View>
-          <Button
-            title="Cancel"
-            color='#D8232F'
-            onPress={() => Alert.alert('Cancled Comment!')}
             />
           </View>
         
@@ -317,7 +338,7 @@ console.log("Document written with ID: ", docRef.id);
       flex: 1.4
     },
     eventDetails: {
-      marginRight: 80
+     
     },
     carLoad: {
       backgroundColor: '#C4C4C4'
@@ -326,9 +347,9 @@ console.log("Document written with ID: ", docRef.id);
       backgroundColor: '#C4C4C4'
     },
     eventButton: {
-      flex: .3,
       flexDirection: 'row',
-      marginLeft: 100,
+      marginBottom:100,
+      marginLeft: 160,
     },
     choicesButton : {
       

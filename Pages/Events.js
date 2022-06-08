@@ -15,8 +15,8 @@ import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore/lit
 
 const Events = ({navigation, item}) => {
 
-  const window = Dimensions.get('window');
-  const screen = Dimensions.get('screen');
+  const window = Dimensions.get('screen').width;
+  const screen = Dimensions.get('screen').height;
 
   const [dimensions, setDimensions] = useState({window, screen});
 
@@ -33,7 +33,7 @@ const Events = ({navigation, item}) => {
   const [odessaEvents, setOdessaEvents] = React.useState("Odessa");
   const [midlandEvents, setMidlandEvents] = React.useState("Midland");
 
-  const [events, setEvents] = React.useState("Events");
+  const [events, setEvents] = React.useState(null);
 
   const [userEmail, setEmail] = useState([]);
 
@@ -43,33 +43,14 @@ const Events = ({navigation, item}) => {
 
   const [eventPageNum] = React.useState(1);
 
+ 
+
    //Call when component is rendered
    useEffect(() => {
     PullData();
-    PullUserEmail();
     PullLocations();
+    PullUserEmail();
   }, []);
-
-  // useEffect(() => {
-  //   const screenSize = Dimensions.addEventListener(
-  //     "change",
-  //     ({window, screen}) => {
-  //       setDimensions({window, screen});
-  //     }
-  //   );
-  //   //console.log(dimensions);
-  //   return () => screenSize?.remove();
-    
-  // })
-
-  const renderUserEmail = ({ item }) => {
-    return(
-      <View>
-        <Text>{item.email}</Text>
-        <Text>{item.user_id}</Text>
-      </View>
-    )
-  }
 
   const PullData = async () => {
     const myDoc = collection(db, 'Users Events')
@@ -82,28 +63,6 @@ const Events = ({navigation, item}) => {
     const goingSnapList = goingSnapShot.docs.map(doc => doc.data());
     setGoingList(goingSnapList)
 
-    console.log("Location for data", location);
-    const myDocLocation = collection(db, `Events/Texas/${location}`)
-    const snapShotLocation = await getDocs(myDocLocation);
-    const snapListLocation = snapShotLocation.docs.map(doc => doc.data());
-    setEvents(snapListLocation)
-    console.log(snapListLocation);
-
-    console.log("Location Events", events)
-
-    const myDocOdessa = collection(db, "Events/Texas/Odessa")
-    const snapShotOdessa = await getDocs(myDocOdessa);
-    const snapListOdessa = snapShotOdessa.docs.map(doc => doc.data());
-    setOdessaEvents(snapListOdessa)
-
-    const myDocMidland = collection(db, "Events/Texas/Midland")
-    const snapShotMidland = await getDocs(myDocMidland);
-    const snapListMidland = snapShotMidland.docs.map(doc => doc.data());
-    setMidlandEvents(snapListMidland)
-
-    //console.log("Odessa Events", snapListOdessa);
-    //console.log("Midland Events", snapListMidland);
-
   }
 
   const PullLocations= async () => {
@@ -112,7 +71,7 @@ const Events = ({navigation, item}) => {
     const snapShotLocation = await getDocs(myDocLocation);
     const snapListLocation = snapShotLocation.docs.map(doc => doc.data());
     setEvents(snapListLocation)
-    console.log(snapListLocation);
+    //console.log(snapListLocation);
 
     console.log("Location Events", events)
   }
@@ -180,12 +139,10 @@ console.log("Document written with ID: ", docRef.id);
               >
               <View style={styles.centeredView}>
                 <View style={styles.modalView}>
+
+                  <Text>Event ID {item.title}</Text>
                
-                <Text style = {styles.eventText}>{item.title}</Text>
-                <Text style = {styles.eventText}>{item.date}</Text>
-                <Text style = {styles.eventText}>{item.time}</Text>
-                
-                <Text style = {styles.eventText}>{item.username}</Text>
+               
                   <Text style={styles.modalText}>Enter Why this content is being reported</Text>
                     <TextInput 
                      onChangeText = {setReport}>Enter Text</TextInput>
@@ -236,7 +193,13 @@ console.log("Document written with ID: ", docRef.id);
           <Text style = {styles.eventText}>{item.username}</Text>
         </View>
 
-        <TouchableHighlight onPress={() => navigation.navigate("Comments")}>
+        <TouchableHighlight onPress={() => 
+          navigation.navigate("Comments", {
+            eventId: item.eventid,
+            eventName: item.title,
+            eventDate: item.date,
+          })
+          }>
                   <View style={styles.goingButton}>
                     <Text style={styles.comment}>Comment</Text>
                   </View>
@@ -271,7 +234,7 @@ console.log("Document written with ID: ", docRef.id);
   
     const [modalVisible, setModalVisible] = useState(false);
   
-    const onShare = async () => {
+    const onShare = async (item) => {
       try {
         const result = await Share.share({
           message:
@@ -292,28 +255,13 @@ console.log("Document written with ID: ", docRef.id);
     };
     
     return(
-      <View  style = {styles.container}  >
-        <View style  = {styles.headBannerEvents}>
-          <View style = {styles.companyNamePlacement}>
-        <Image style = {styles.profileCar} source = {require('../assets/CompanyLogo/TXStockRally.jpg')}/>
-        </View>
-        </View>
-    
-        <View style = {styles.headerView}>
-       
-     
-        <Text style = {styles.eventName}>Local Events</Text>
+      <View  style = {styles.container} >
 
-        <View style = {styles.cityView}> 
-           <TextInput style = {styles.localEventsInput}
-          placeholder='Enter City Name'>
-            City</TextInput>
-            <TextInput style = {styles.localEventsInput}
-          placeholder='Enter State Name'>
-            State</TextInput>
-          </View>
+                <Image style = {styles.profileCar} source = {require('../assets/CompanyLogo/TXStockRally.jpg')}/>
+      
+          <Text style = {styles.eventName}>Local Events</Text>
 
-        <RNPickerSelect style={styles.scroller}
+            <RNPickerSelect style={styles.scroller}
             onValueChange={
               (value) => setLocation(value)
             }
@@ -335,23 +283,17 @@ console.log("Document written with ID: ", docRef.id);
                 { label: 'Dallas, Texas', value: 'Dallas Texas' },
                 { label: 'Fort Worth, Texas', value: 'Fort Worth Texas' },
                 { label: 'Corpus Christi, Texas', value: 'Corpus Christi Texas' },
-            ]}
-        />
+              ]}
+            />
+            
+        
+              <Text style = {styles.locationName}>{location}</Text>
           
-
-          <View style = {styles.locationView}>
-          <Text style = {styles.locationName}>{location}</Text>
-          </View>
-        
-        <ScrollView style = {styles.eventDetails} contentContainerStyle={{paddingBottom: 50}}>
-            <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-              data = {goingList}
+            <FlatList style = {{ width: window, height: '100%'}}
+              data = {events}
               renderItem = {renderItem}
+              keyExtractor = {(idx) => idx}
               />
-          </ScrollView>
-        
-        </View>
-        
       </View>
     );
     
@@ -366,8 +308,8 @@ console.log("Document written with ID: ", docRef.id);
       justifyContent: 'center',
     },
     headerView: { 
+      flex: 1,
       backgroundColor: '#C4C4C4',
-      marginTop: 100
      },
     scroller: {
       backgroundColor: 'white'
@@ -398,8 +340,7 @@ console.log("Document written with ID: ", docRef.id);
       marginLeft: 100,
   },
   eventDetails: {
-    flex: 1,
-    backgroundColor: '#C4C4C4'
+    flex: 1
   },
   events: {
     flex: 1
@@ -413,16 +354,14 @@ console.log("Document written with ID: ", docRef.id);
       backgroundColor: '#222222',
     },
     headBannerEvents: {
-      flex: 1,
-      width: 400,
-      marginBottom: 100,
+      flex: .15,
+      width: '100%',
       backgroundColor: '#222222',
     },
     eventBanner: {
-      flex: .2,
-      marginBottom: 150,
+      flex: 1,
+      marginBottom: 100,
       width: 400,
-     
       flexDirection: 'row'
     },
     Logo: {
@@ -449,9 +388,6 @@ console.log("Document written with ID: ", docRef.id);
     },
     cityView: {
       flexDirection: 'row'
-    },
-    locationView: {
-      paddingLeft: 125
     },
     locationName: {
       fontWeight: "bold",

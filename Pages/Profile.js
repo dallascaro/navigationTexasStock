@@ -11,7 +11,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
 import { db, storage, storageRef} from "../firebase";
-import { uploadBytes, ref, uploadBytesResumable, getDownloadURL } from '@firebase/storage';
+import { uploadBytes, ref, uploadBytesResumable, getDownloadURL, putFile } from '@firebase/storage';
 import { collection, getDocs, addDoc} from "firebase/firestore/lite";
 // To pick the file from local file system
 import DocumentPicker, {
@@ -492,7 +492,7 @@ console.log("Document written with ID: ", docRef.id);
       justifyContent: 'center',
     },
     imageContainer: {
-      marginTop: 30
+     
     },
     headerView: { 
      backgroundColor: '#C4C4C4'

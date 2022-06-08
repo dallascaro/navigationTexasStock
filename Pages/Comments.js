@@ -8,13 +8,18 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 //import ScrollPicker from 'react-native-wheel-scrollview-picker';
 //import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native-gesture-handler';
-import { db, writeUserData } from "../firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore/lite";
+import { db, auth } from "../firebase";
+import { query, where, QueryDocumentSnapshot, QuerySnapshot, onSnapshot, setDoc, doc, collection, addDoc, serverTimestamp, getDocs} from "firebase/firestore";
+import { async } from '@firebase/util';
 
-const Comments = ({navigation}) => {
+const Comments = ({navigation, route}) => {
 
-  const window = Dimensions.get('window');
-  const screen = Dimensions.get('screen');
+  const window = Dimensions.get('screen').width;
+  const screen = Dimensions.get('screen').height;
+
+  const {eventId, eventName, eventDate} = route.params;
+
+  console.log(eventId, eventName, eventDate);
 
   const [dimensions, setDimensions] = useState({window, screen});
 
@@ -23,11 +28,9 @@ const Comments = ({navigation}) => {
 
     const [userReplies, setReplies] = useState([]);
 
-    const[userReport, setReport] = React.useState("Report");
-
     const[userName, setUserName] = React.useState("UserName");
 
-  const[eventDate, setDate] = React.useState("Date");
+  //const[eventDate, setDate] = React.useState("Date");
   const[eventTime, setTime] = React.useState("Time");
   const[eventCity, setCity] = React.useState("City");
   const[eventState, setState] = React.useState("State");
@@ -35,66 +38,29 @@ const Comments = ({navigation}) => {
   const[eventDescription, setDescription] = React.useState("Description");
 
   const [modalVisible, setModalVisible] = useState(false);
-  
 
-  const PostData = async () => { 
-    // Add a new document with a generated id.
-  const docRef = await addDoc(collection(db, "User Replies"), {
-  username: userName,
-  comment: userComment
-});
-const userReplies = collection(db, 'User Replies')
-    const repliesSnapshot = await getDocs(userReplies)
-    const repliesList = repliesSnapshot.docs.map(doc => doc.data());
-    setReplies(repliesList)
-    console.log(repliesList)
-console.log("Document written with ID: ", docRef.id);
+  const commentData = async ({route}) =>{
+   
 
-  }
-
-  const PullUserEmail = async () => {
-    const myDoc = collection(db, "UserIDs")
-    const snapShot = await getDocs(myDoc);
-    const snapList = snapShot.docs.map(doc => doc.data());
-    setEmail(snapList)
-    console.log(snapList);
   }
 
   const PullUserComments = async () => {
-    const myDoc = collection(db, 'User Comments')
-    const snapShot = await getDocs(myDoc);
-    const snapList = snapShot.docs.map(doc => doc.data());
-    setReplies(snapList)
-    console.log(snapList);
+    const myDoc = collection(db, 'Users Comments')
+    const eventComments = query(myDoc, where('eventID', "==", eventId));
+   
+    const querySnapshot = await getDocs(eventComments);
+      const commentList = querySnapshot.docs.map(doc => doc.data());
+        setReplies(commentList)
+        //console.log("Replies", userReplies);
+
+   console.log("Posted Comments");
   }
 
     //Call when component is rendered
     useEffect(() => {
-      PullUserEmail();
       PullUserComments();
     }, []);
 
-
-  const renderUserEmail = ({ item }) => {
-     
-    return(
-      <View>
-        <Text>{item.email}</Text>
-        <Text>{item.user_id}</Text>
-      </View>
-    )
-  }
-
-  const renderComment = ({ item }) => {
-    return(
-   
-     <View>
-        <Text>{item.username}</Text>
-        <Text>{item.comment}</Text>
-     </View>
-
-    )
-  }
 
   useEffect(() => {
     const screenSize = Dimensions.addEventListener(
@@ -108,230 +74,48 @@ console.log("Document written with ID: ", docRef.id);
     
   })
 
+  const renderItem = ({ item }) => {
+    return(
+      <View style = {styles.eventsBackground}>
+        <View style = {styles.eventsProfilePost}>
+        <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
+          <Text style = {styles. eventsUserName}>{item.userEmail}</Text>
+        </View>
+
+        <View style = {styles.eventRender}>
+          <Text style = {styles.eventText}>{item.comment}</Text>
+        </View>
+       
+      </View>
+    )
+  }
+
     return(
       <View  style = {styles.container}  >
-
-        <View style = {styles.topComment}>
-            <Text style = {styles.comment}>Comments</Text>
-        </View>
-
-        <View style = {styles.commentSection}>
-            <View style = {styles.commentSectionTop}>
-                
-        <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                  Alert.alert("Content has been reported");
-                  setModalVisible(!modalVisible);
-                  }}
-                >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Type out reply</Text>
-              <TextInput
-              onChangeText = {setComment}>Enter Text</TextInput>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-                  
-                 <Button
-                    title="Comment!"
-                    color='#D8232F'
-                    onPress={PostData}
-                  />
-                <Text style={styles.textStyle}>Close Comment</Text>
-              </Pressable>
-              
-            </View>
+          <View style = {styles.topComment}>
+              <Text style = {styles.comment}>Comments</Text>
           </View>
-        </Modal>
-        <Pressable
-          style={[styles.button, styles.buttonOpen]}
-          onPress={() => setModalVisible(true)}
-        >
-        
-        </Pressable>
-      
-            </View>
 
-<View style = {styles.commentSectionTop}>
-
-<View style = {styles.replieSections}>
-
-<Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-
-<View style = {styles.userInfo}>
-<FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-      data = {userEmail}
-      renderItem = {renderUserEmail}
-      />
-</View>
-
-<Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Content has been reported");
-          setModalVisible(!modalVisible);
-          }}
-        >
-  <View style={styles.centeredView}>
-    <View style={styles.modalView}>
-      <Text style={styles.modalText}>Type out reply</Text>
-      <TextInput
-      onChangeText = {setComment}>Enter Text</TextInput>
-      <Pressable
-        style={[styles.button, styles.buttonClose]}
-        onPress={() => setModalVisible(!modalVisible)}
-      >
-         <Button
-            title="Comment!"
-            color='#D8232F'
-            onPress={PostData}
-          />
-        <Text style={styles.textStyle}>Close Comment</Text>
-      </Pressable>
-    </View>
-  </View>
-</Modal>
-<Pressable
-  style={[styles.button, styles.buttonOpen]}
-  onPress={() => setModalVisible(true)}
->
-  <Text style={styles.textStyle}>Reply</Text>
-</Pressable>
-    </View>
-<ScrollView style = {styles.replies}>
-<FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-      data = {userReplies}
-      renderItem = {renderComment}
-      />
-</ScrollView>
-</View>
-
-
-            <View style = {styles.commentSectionTop}>
-
-        <View style = {styles.replieSections}>
-
-        <Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
-        
-        <View>
-        <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-              data = {userEmail}
-              renderItem = {renderUserEmail}
-              />
-        </View>
-
-        <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                  Alert.alert("Content has been reported");
-                  setModalVisible(!modalVisible);
-                  }}
-                >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Type out reply</Text>
-              <TextInput
-              onChangeText = {setComment}>Enter Text</TextInput>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-                 <Button
-                    title="Comment!"
-                    color='#D8232F'
-                    onPress={PostData}
-                  />
-                <Text style={styles.textStyle}>Close Comment</Text>
-              </Pressable>
-            </View>
+          <View style = {styles.passedInfo}>
+              <Text style = {styles.passedInfoLook}>eventId: {JSON.stringify(eventId)}</Text>
+              <Text style = {styles.passedInfoLook}>eventName: {JSON.stringify(eventName)}</Text>
+              <Text style = {styles.passedInfoLook}>eventDate: {JSON.stringify(eventDate)}</Text>
           </View>
-        </Modal>
-        <Pressable
-          style={[styles.button, styles.buttonOpen]}
-          onPress={() => setModalVisible(true)}
-        >
-          <Text style={styles.textStyle}>Reply</Text>
-        </Pressable>
-            </View>
-              <ScrollView style = {styles.replies}>
-        <FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-              data = {userReplies}
-              renderItem = {renderComment}
-              />
-        </ScrollView>
-        </View>
 
-        <View style = {styles.commentSectionTop}>
 
-<View style = {styles.replieSections}>
+          <View style = {styles.commentSection}>
+            <Text>Comments</Text>
+                  <FlatList style = {{ width: window, height: '100%'}}
+                        data = {userReplies}
+                        renderItem = {renderItem}
+                        keyExtractor = {(idx) => idx}
+                      />
+          </View>
 
-<Image style = {styles.profilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
+          
 
-<View>
-<FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-      data = {userEmail}
-      renderItem = {renderUserEmail}
-      />
-</View>
-
-<Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Content has been reported");
-          setModalVisible(!modalVisible);
-          }}
-        >
-  <View style={styles.centeredView}>
-    <View style={styles.modalView}>
-      <Text style={styles.modalText}>Type out reply</Text>
-      <TextInput
-      onChangeText = {setComment}>Enter Text</TextInput>
-      <Pressable
-        style={[styles.button, styles.buttonClose]}
-        onPress={() => setModalVisible(!modalVisible)}
-      >
-         <Button
-            title="Comment!"
-            color='#D8232F'
-            onPress={PostData}
-          />
-        <Text style={styles.textStyle}>Close Comment</Text>
-      </Pressable>
-    </View>
-  </View>
-</Modal>
-<Pressable
-  style={[styles.button, styles.buttonOpen]}
-  onPress={() => setModalVisible(true)}
->
-  <Text style={styles.textStyle}>Reply</Text>
-</Pressable>
-    </View>
-      <ScrollView style = {styles.replies}>
-<FlatList style = {{flex: 1, width: '100%', height: '100%'}}
-      data = {userReplies}
-      renderItem = {renderComment}
-      />
-</ScrollView>
-</View>
-
-        </View>
-      
-      
       </View>
     );
-    
   }
 
   export default Comments;
@@ -349,9 +133,22 @@ console.log("Document written with ID: ", docRef.id);
       backgroundColor: 'black',
      
     },
-    userInfo: {
-       
+    passedInfo: {
+      flexDirection: 'column',
+      flex: .2,
+      width: 400,
+      backgroundColor: 'black'
     },
+    passedInfoLook: {
+      fontWeight: 'bold',
+      color: 'white',
+      fontSize: 12,
+      marginLeft: 50
+    },
+    userInfo: {
+     
+    },
+  
     textStyle: {
       fontWeight: 'bold'
     },
@@ -444,8 +241,8 @@ flexDirection: 'row'
       flexDirection: 'row'
     },
     eventText: {
-      fontWeight: "bold",
-      fontSize: 18,
+      
+      fontSize: 15,
       fontFamily: 'sans-serif'
     },
     eventsProfilePost: {
@@ -494,7 +291,8 @@ flexDirection: 'row'
       marginLeft: 25
     },
     eventsUserName: {
-      fontSize: 25
+      fontSize: 18,
+      fontWeight: "bold",
     },
     eventFeed: {  
       flex: 1.4
@@ -516,7 +314,9 @@ flexDirection: 'row'
     choicesButton : {
       
     },
-  
+    eventRender: {
+      marginLeft: 100,
+    },
     signUpLogin: {
      flex: 1,
      marginTop: 100
