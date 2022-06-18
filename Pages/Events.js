@@ -11,7 +11,8 @@ import { TextInput } from 'react-native-gesture-handler';
 import RNPickerSelect from 'react-native-picker-select';
 
 import { db, writeUserData } from "../firebase";
-import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore/lite";
+import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore";
+import {windowHeight, windowWdith} from '../Utils/Dimensions';
 
 const Events = ({navigation, item}) => {
 
@@ -26,73 +27,24 @@ const Events = ({navigation, item}) => {
 
   const[userEvent, setEvent] = React.useState("Event");
 
-  const [location, setLocation] = React.useState("Location");
-
-  const locationTest = "Midland";
-
-  const [odessaEvents, setOdessaEvents] = React.useState("Odessa");
-  const [midlandEvents, setMidlandEvents] = React.useState("Midland");
+  const [city, setCity] = React.useState("City");
+  const [state, setState] = React.useState("State");
 
   const [events, setEvents] = React.useState(null);
 
   const [userEmail, setEmail] = useState([]);
 
-  const [eventList, setEventList] = useState([]);
-  const [goingList, setGoingList] = useState([]);
-  const [interestedList, setInterestedList] = useState([]);
-
   const [eventPageNum] = React.useState(1);
 
- 
-
-   //Call when component is rendered
-   useEffect(() => {
-    PullData();
-    PullLocations();
-    PullUserEmail();
-  }, []);
-
-  const PullData = async () => {
-    const myDoc = collection(db, 'Users Events')
-    const snapShot = await getDocs(myDoc);
-    const snapList = snapShot.docs.map(doc => doc.data());
-    setEventList(snapList)
-
-    const goingMyDoc = collection(db, 'Users Going Events')
-    const goingSnapShot = await getDocs(goingMyDoc);
-    const goingSnapList = goingSnapShot.docs.map(doc => doc.data());
-    setGoingList(goingSnapList)
-
-  }
-
+  
   const PullLocations= async () => {
-    console.log("Location for data", location);
-    const myDocLocation = collection(db, `Events/Texas/${location}`)
+    //console.log("Location for data", location);
+    const myDocLocation = collection(db, `Locations/States/${state}/${city}/Events/`)
     const snapShotLocation = await getDocs(myDocLocation);
     const snapListLocation = snapShotLocation.docs.map(doc => doc.data());
     setEvents(snapListLocation)
     //console.log(snapListLocation);
-
-    console.log("Location Events", events)
-  }
-
-  const PullUserEmail = async () => {
-    const myDoc = collection(db, "UserIDs")
-    const snapShot = await getDocs(myDoc);
-    const snapList = snapShot.docs.map(doc => doc.data());
-    setEmail(snapList)
-    console.log(snapList);
-  }
-
-  const reportContent = async () => { 
-    // Add a new document with a generated id.
-  const docRef = await addDoc(collection(db, "Reported Events"), {
-  eventName: "Event",
-  user: userReport
-});
-
-console.log("Document written with ID: ", docRef.id);
-
+   // console.log("Location Events", events)
   }
 
   const goingToEvent = async () => { 
@@ -129,49 +81,19 @@ console.log("Document written with ID: ", docRef.id);
         <Image>{item.url}</Image>
         <Text>{item.eventPic}</Text>
 
-        <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => {
-                setModalVisible(modalVisible);
-                }}
-              >
-              <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-
-                  <Text>Event ID {item.title}</Text>
-               
-               
-                  <Text style={styles.modalText}>Enter Why this content is being reported</Text>
-                    <TextInput 
-                     onChangeText = {setReport}>Enter Text</TextInput>
-
-          <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}
-            >
-                 <Button
-                  title="Report!"
-                  color='#D8232F'
-                  onPress={reportContent}
-                />
-              <Text style={styles.textStyle}>End Report</Text>
-            </Pressable>
-                  
-                
-
-                </View>
-              </View>
-            </Modal>
-
-            <Pressable
-              style={[styles.button, styles.buttonOpen]}
-              onPress={() => setModalVisible(true)}
-            >
-              <Text style={styles.textStyle}>Report Content</Text>
-             
-            </Pressable>
+        <TouchableHighlight onPress={() => 
+          navigation.navigate("Reports", {
+            eventId: item.eventID,
+            eventName: item.title,
+            eventDate: item.date,
+            state: state,
+            city: city
+          })
+          }>
+                  <View style={styles.goingButton}>
+                    <Text style={styles.comment}>Report</Text>
+                  </View>
+                </TouchableHighlight>
 
         <View  style = {styles.eventRender}>
         <Text style = {styles.eventText}>{item.title}</Text>
@@ -184,20 +106,19 @@ console.log("Document written with ID: ", docRef.id);
        
         <View style = {styles.eventRender}>
           <Text style = {styles.eventText}>{item.address}</Text>
-          <Text style = {styles.eventText}>{item.city}</Text>
-          <Text style = {styles.eventText}>{item.state}</Text>
         </View>
 
         <View style = {styles.eventRender}>
           <Text style = {styles.eventText}>{item.description}</Text>
-          <Text style = {styles.eventText}>{item.username}</Text>
         </View>
 
         <TouchableHighlight onPress={() => 
           navigation.navigate("Comments", {
-            eventId: item.eventid,
+            eventId: item.eventID,
             eventName: item.title,
             eventDate: item.date,
+            state: state,
+            city: city
           })
           }>
                   <View style={styles.goingButton}>
@@ -261,38 +182,22 @@ console.log("Document written with ID: ", docRef.id);
       
           <Text style = {styles.eventName}>Local Events</Text>
 
-            <RNPickerSelect style={styles.scroller}
-            onValueChange={
-              (value) => setLocation(value)
-            }
-            items={[
-                { label: 'Midland, Texas', value: 'Midland' },
-                { label: 'Odessa, Texas', value: 'Odessa' },
-                { label: 'Andrews, Texas', value: 'Andrews' },
-                { label: 'Monahans, Texas', value: 'Monahans Texas' },
-                { label: 'Big Spring, Texas', value: 'Big Spring Texas' },
-                { label: 'Fort Stockton, Texas', value: 'Fort Stockton Texas' },
-                { label: 'El Paso, Texas', value: 'El Paso Texas' },
-                { label: 'Seminole, Texas', value: 'Seminole Texas' },
-                { label: 'San Angelo, Texas', value: 'San Angelo Texas' },
-                { label: 'Abilene, Texas', value: 'Abilene Texas' },
-                { label: 'Amarillo, Texas', value: 'Amarillo Texas' },
-                { label: 'San Antonio, Texas', value: 'San Antonio Texas' },
-                { label: 'Austin, Texas', value: 'Austin Texas' },
-                { label: 'Houston, Texas', value: 'Houston Texas' },
-                { label: 'Dallas, Texas', value: 'Dallas Texas' },
-                { label: 'Fort Worth, Texas', value: 'Fort Worth Texas' },
-                { label: 'Corpus Christi, Texas', value: 'Corpus Christi Texas' },
-              ]}
-            />
-            
-        
-              <Text style = {styles.locationName}>{location}</Text>
+            <View style = {styles.selection}>
+            <TextInput style = {styles.selectionInput}
+              onChangeText= {setState}>State</TextInput>
+              <TextInput style = {styles.selectionInput}
+                onChangeText= {setCity}>City</TextInput>
+                <Button
+            title='Call'
+            onPress={PullLocations}></Button>
+            </View>
+          
+              <Text style = {styles.locationName}>{city}{state}</Text>
           
             <FlatList style = {{ width: window, height: '100%'}}
               data = {events}
               renderItem = {renderItem}
-              keyExtractor = {(idx) => idx}
+              keyExtractor = {(idx) => idx.description}
               />
       </View>
     );
@@ -313,6 +218,14 @@ console.log("Document written with ID: ", docRef.id);
      },
     scroller: {
       backgroundColor: 'white'
+    },
+    selection:{
+      flexDirection: 'row',
+      backgroundColor: 'gray',
+    },
+    selectionInput:{
+      width: 100,
+      marginRight: 15
     },
     comment: {
         paddingLeft: 150,

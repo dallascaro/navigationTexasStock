@@ -5,7 +5,7 @@ import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 
 import { ContactStackNavigator } from "./StackNavigator";
-import { MainStackNavigator,TabNavigator, SettingsStackNavigator, BussTabNavigator  } from "./StackNavigator";
+import { MainStackNavigator,TabNavigator, SettingsStackNavigator, } from "./StackNavigator";
 
 
 const Drawer = createDrawerNavigator();
@@ -15,7 +15,6 @@ const DrawerNavigator = () => {
     <Drawer.Navigator>
       <Drawer.Screen name="Home" component={MainStackNavigator} options={{headerShown: false, swipeEnabled: false}} />
       <Drawer.Screen name="EventsT" component={TabNavigator} options={{headerShown: false}}/>
-      <Drawer.Screen name="EventsTB" component={BussTabNavigator} options={{headerShown: false}}/>
       <Drawer.Screen name ="Settings" component={SettingsStackNavigator} options={{headerShown: false}}/>
     </Drawer.Navigator>
   );

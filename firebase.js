@@ -34,7 +34,7 @@ if (firebase.apps.length === 0){
 const auth = firebase.auth()
 
 // Firestore database
-const db = getFirestore(app);
+const db = getFirestore();
 
 //Storage
 const storage = getStorage(app);

@@ -5,20 +5,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-//import ScrollPicker from 'react-native-wheel-scrollview-picker';
-//import Carousel from 'react-native-snap-carousel';
 import { TextInput } from 'react-native-gesture-handler';
 import { sendPasswordResetEmail } from "firebase/auth";
 import { db, auth } from "../firebase";
 import { query, where, QueryDocumentSnapshot, QuerySnapshot, onSnapshot, setDoc, doc, collection, addDoc, serverTimestamp} from "firebase/firestore";
 import { update } from 'firebase/database';
+import {windowHeight, windowWdith} from '../Utils/Dimensions';
 
 const Home = ({ navigation }) => {
-
-  const window = Dimensions.get('window');
-  const screen = Dimensions.get('screen');
-
-  const [dimensions, setDimensions] = useState({window, screen});
 
   const[email, setEmail] = React.useState(null);
   const[password, setPassword] = React.useState(null);
@@ -175,7 +169,6 @@ useEffect(() => {
       setDimensions({window, screen});
     }
   );
-  console.log(dimensions);
   return () => screenSize?.remove();
   
 })
@@ -210,15 +203,6 @@ useEffect(() => {
               </View>
             </TouchableHighlight>
  
-        </View>
-
-        <View style = {styles.BussinessLogin}>
-          <TouchableHighlight
-          onPress={() => navigation.navigate("BussHome")}>
-            <View style = {styles.forgotBussButton}>
-              <Text style = {styles.forgotBussPadd}>Bussiness Login</Text>
-            </View>
-          </TouchableHighlight>
         </View>
   
         <View style = {styles.loginButton}>
@@ -261,12 +245,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: window.height,
-    width: window.width
+    height: windowHeight,
+    width: windowWdith,
+    backgroundColor: 'black'
   },
   headBanner: {
     flex: 1,
-    width: 400
+    width: windowWdith
   },
   headBannerEvents: {
     flex: .3,
@@ -291,7 +276,8 @@ const styles = StyleSheet.create({
   },
   forgotBussPadd: {
     paddingLeft: 45,
-    paddingTop: 7
+    paddingTop: 7,
+    color: 'white'
   },
   localEvents: {
     color: 'white',
@@ -315,19 +301,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   carPics: {
-    width: 400,
+   
   },
   Logo: {
-    width: 400,
-    height: 100,
+    width: windowWdith,
+    height: '100%',
   },
   profileCar: {
-    height: 200,
-    width: 400
+    height: 200
   },
   profilePictureView: {
     flex: .8,
-    width: 400,
+    width:  windowWdith,
     backgroundColor: '#C4C4C4'
 
   },
@@ -379,11 +364,13 @@ const styles = StyleSheet.create({
   },
   signUpPadd: {
     paddingLeft: 20,
-    paddingTop: 7
+    paddingTop: 7,
+    color: 'white'
   },
   loginPadd: {
     paddingLeft: 25,
-    paddingTop: 7
+    paddingTop: 7,
+    color: 'black'
   },
   loginInput: {
     backgroundColor: '#C9C9C9',
@@ -420,8 +407,8 @@ const styles = StyleSheet.create({
   },
   footerContent: {
     flex: .7,
-    width: 400,
-    backgroundColor: "#222222"
+    width: windowWdith,
+    backgroundColor: "black"
   },
   footerName: {
     color: 'white',
@@ -441,8 +428,6 @@ const styles = StyleSheet.create({
   },
   copyRight: {
     color: 'white',
-    fontSize: 20,
-    marginTop: 50,
-   marginLeft: 10
+    fontSize: 20
   }
 });

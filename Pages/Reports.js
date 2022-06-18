@@ -12,7 +12,7 @@ import { db, auth } from "../firebase";
 import { query, where, QueryDocumentSnapshot, QuerySnapshot, onSnapshot, setDoc, doc, collection, addDoc, serverTimestamp, getDocs} from "firebase/firestore";
 import { async } from '@firebase/util';
 
-const Comments = ({navigation, route}) => {
+const Reports = ({navigation, route}) => {
 
   const window = Dimensions.get('screen').width;
   const screen = Dimensions.get('screen').height;
@@ -23,40 +23,32 @@ const Comments = ({navigation, route}) => {
 
   const [dimensions, setDimensions] = useState({window, screen});
 
-    const[userComments, setComments] = React.useState("Comment");
-    const [userEmail, setEmail] = useState([]);
+    const[reports, setReports] = React.useState("Comment");
 
-    const [userReplies, setReplies] = useState([]);
+  const[userReport, setUserReport] = React.useState(null);
 
-    const[userName, setUserName] = React.useState("UserName");
 
-  //const[eventDate, setDate] = React.useState("Date");
-  const[eventTime, setTime] = React.useState("Time");
-  const[eventCity, setCity] = React.useState("City");
-  const[eventState, setState] = React.useState("State");
-  const[eventTitle, setTitle] = React.useState("Title");
-  const[eventDescription, setDescription] = React.useState("Description");
-
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const commentData = async ({route}) =>{
-   
-
-  }
-
-  const PullUserComments= async () => {
-    console.log("Location for data", state, city );
-    const myDocLocation = collection(db, `Locations/States/${state}/${city}/Events/${eventId}/Comments`)
+  const PullUserReports= async () => {
+    const myDocLocation = collection(db, `Locations/States/${state}/${city}/Reported Events/${eventId}/Reports`)
     const snapShotLocation = await getDocs(myDocLocation);
     const snapListLocation = snapShotLocation.docs.map(doc => doc.data());
-    setComments(snapListLocation)
-    //console.log(snapListLocation);
-   // console.log("Location Events", events)
+    setReports(snapListLocation)
+  }
+
+  const SubmitReport = async () => { 
+    // Add a new document with a generated id.
+
+    const reportComment = addDoc(collection(db, `Locations/States/${state}/${city}/Reported Events/${eventId}/Reports`, auth.currentUser.uid), {
+        report: userReport
+      })
+
+console.log("Document written with ID: ", reportComment.id);
+
   }
 
     //Call when component is rendered
     useEffect(() => {
-      PullUserComments();
+      PullUserReports();
     }, []);
 
 
@@ -81,7 +73,7 @@ const Comments = ({navigation, route}) => {
         </View>
 
         <View style = {styles.eventRender}>
-          <Text style = {styles.eventText}>{item.comment}</Text>
+          <Text style = {styles.eventText}>{item.report}</Text>
         </View>
        
       </View>
@@ -91,7 +83,7 @@ const Comments = ({navigation, route}) => {
     return(
       <View  style = {styles.container}  >
           <View style = {styles.topComment}>
-              <Text style = {styles.comment}>Comments</Text>
+              <Text style = {styles.comment}>Reports</Text>
           </View>
 
           <View style = {styles.passedInfo}>
@@ -102,12 +94,21 @@ const Comments = ({navigation, route}) => {
 
 
           <View style = {styles.commentSection}>
-            <Text>Comments</Text>
+            <Text>Reports</Text>
                   <FlatList style = {{ width: window, height: '100%'}}
-                        data = {userComments}
+                        data = {reports}
                         renderItem = {renderItem}
                         keyExtractor = {(idx) => idx}
                       />
+                      <View>
+                        <Text style = {styles.report} >Please Enter why you are reporting this event</Text>
+                        <TextInput style = {styles.reportComment}
+                        onChangeText = {setUserReport}>Enter Report</TextInput>
+                        <Button
+                        title='Reported'
+                        onPress={SubmitReport}></Button>
+                      </View>
+                      
           </View>
 
           
@@ -116,7 +117,7 @@ const Comments = ({navigation, route}) => {
     );
   }
 
-  export default Comments;
+  export default Reports;
 
   const styles = StyleSheet.create({
     container: {
@@ -146,7 +147,14 @@ const Comments = ({navigation, route}) => {
     userInfo: {
      
     },
-  
+    report: {
+        fontWeight: 'bold',
+        fontSize: 20
+    },
+    reportComment: {
+        backgroundColor: 'white',
+        color: 'black'
+    },
     textStyle: {
       fontWeight: 'bold'
     },

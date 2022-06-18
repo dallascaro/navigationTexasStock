@@ -1,237 +1,182 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, Share, Modal, Pressable, TouchableOpacity, Dimensions} from 'react-native';
-//import {Picker} from '@react-native-picker/picker';
+import { Button, Text, View, Picker, StyleSheet, ScrollView,Image, Alert, ActivityIndicator, FlatList, Share, Modal, Pressable,  TouchableHighlight, Dimensions} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-//import ScrollPicker from 'react-native-wheel-scrollview-picker';
 //import Carousel from 'react-native-snap-carousel';
-import { FlatList, TextInput, TouchableHighlight } from 'react-native-gesture-handler';
-import PagerView from 'react-native-pager-view';
-import {getDownloadURL} from "firebase/storage";
-import { db, pathReference2, profilePicRef, jeremyPic} from "../firebase";
-import { collection, getDocs, addDoc, doc } from "firebase/firestore/lite";
-// To pick the file from local file system
-import DocumentPicker, {
-  DirectoryPickerResponse,
-  DocumentPickerResponse,
-  isInProgress,
-  types,
-} from 'react-native-document-picker'
+import { TextInput } from 'react-native-gesture-handler';
 
-import { PayPalScriptProvider, PayPalButtons, Component } from "@paypal/react-paypal-js";
-import { StripeProvider, initStripe, CardField, useConfirmPayment } from '@stripe/stripe-react-native';
-import { render } from 'react-dom';
-import { fetchPublishableKey } from '../helper';
-import { async } from '@firebase/util';
-import { API_URL } from '../Config';
+import RNPickerSelect from 'react-native-picker-select';
 
-import {GooglePayButton, useGooglePay} from '@stripe/stripe-react-native';
+import { db, writeUserData } from "../firebase";
+import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore";
+import {windowHeight, windowWdith} from '../Utils/Dimensions';
 
-import { GooglePay } from 'react-native-google-pay';
+const Events = ({navigation, item}) => {
 
-const Services = ({navigation}) => {
-
-  const window = Dimensions.get('window');
-  const screen = Dimensions.get('screen');
+  const window = Dimensions.get('screen').width;
+  const screen = Dimensions.get('screen').height;
 
   const [dimensions, setDimensions] = useState({window, screen});
 
-  const [servicesPageNum] = React.useState(3);
+  const[userComment, setComment] = React.useState("Comment");
 
-  const {
-    isGooglePaySupported,
-    initGooglePay,
-    presentGooglePay,
-  } = useGooglePay();
+  const[userReport, setReport] = React.useState("Report");
 
-  const allowedCardNetworks = ['VISA', 'MASTERCARD'];
-const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
+  const[userEvent, setEvent] = React.useState("Event");
 
-  const {confirmPayment, loading} = useConfirmPayment()
-  const [name, setName] = useState('');
+  const [city, setCity] = React.useState("City");
+  const [state, setState] = React.useState("State");
 
-  const [publishableKey, setPublishableKey] = useState('');
+  const [events, setEvents] = React.useState(null);
 
-   // Remove these before posting will need to make sure the API is called to gather
-   const publishablekey1 = 'pk_test_51KjSdtA385jgfbdFAOiuVV0qWz2neeBenX9fsMzrDIjHjdIHONLGwmQtNAYpN5ZARRAU2YDn6EOSKo7BrrkFUTtF00X42W8Ybl'
-   const secretKey = 'sk_test_51KjSdtA385jgfbdF00AvxPl3brBegiPgTZneEqNbcwu1NTqJ8egqb1L8p7AeU5tMoZkT5mc0Wf4lAmYHAlvLSJAp00Hv7PcJo0'
+  const [userEmail, setEmail] = useState([]);
 
-  // Set the environment before the payment request
-//GooglePay.setEnvironment(GooglePay.ENVIRONMENT_TEST);
+  const [eventPageNum] = React.useState(1);
 
-
-  React.useEffect(() => {
-    init();
-  }, []);
-
-  useEffect(() => {
-    const screenSize = Dimensions.addEventListener(
-      "change",
-      ({window, screen}) => {
-        setDimensions({window, screen});
-      }
-    );
-    console.log(dimensions);
-    return () => screenSize?.remove();
-    
-  })
-
-  const init = async () => {
-      setPublishableKey(publishablekey1)
+  
+  
+  const PullLocations= async () => {
+    //console.log("Location for data", location);
+    const myDocLocation = collection(db, `Locations/States/${state}/${city}/Business/`)
+    const snapShotLocation = await getDocs(myDocLocation);
+    const snapListLocation = snapShotLocation.docs.map(doc => doc.data());
+    setEvents(snapListLocation)
+    //console.log(snapListLocation);
+   // console.log("Location Events", events)
   }
 
-  const requestData = {
-    cardPaymentMethod: {
-      tokenizationSpecification: {
-        type: 'PAYMENT_GATEWAY',
-        // stripe (see Example):
-        gateway: 'stripe',
-        gatewayMerchantId: '',
-        stripe: {
-          publishableKey: 'pk_test_TYooMQauvdEDq54NiTphI7jx',
-          version: '2018-11-08',
-        },
-        // other:
-        gateway: 'example',
-        gatewayMerchantId: 'exampleGatewayMerchantId',
-      },
-      allowedCardNetworks,
-      allowedCardAuthMethods,
-    },
-    transaction: {
-      totalPrice: '10',
-      totalPriceStatus: 'FINAL',
-      currencyCode: 'USD',
-    },
-    merchantName: 'Example Merchant',
-  };
 
-  const fetchPaymentIntentClientSecret = async () => {
-    // Fetch payment intent created on the server, see above
-    console.log("key", publishableKey)
-    Alert.alert('Entered Client Secret')
-    const response = await fetch(`${API_URL}/create-payment-intent`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        currency: 'usd',
-      }),
-    });
-    const { clientSecret } = await response.json();
-   
-    return clientSecret;
-  };
+  const goingToEvent = async () => { 
+    // Add a new document with a generated id.
+  const docRef = await addDoc(collection(db, "Users Going Events"), {
+  username: "Dallas",
+  event: userEvent
+});
 
-  const pay = async () => {
-    Alert.alert('Entered Pay Method')
-    const clientSecret = secretKey;
-   // Need to correct Fetch
-
-    const { error } = await presentGooglePay({
-      clientSecret,
-      forSetupIntent: false,
-    });
-
-    if (error) {
-      Alert.alert(error.code, error.message);
-      // Update UI to prompt user to retry payment (and possibly another payment method)
-      return;
-    }
-    Alert.alert('Success', 'The payment was confirmed successfully.');
-  };
-
-
-  const payment = async () => {
-    Alert.alert('Entered')
-    
-    const response = await fetch('${API_URL}/create-payment-intent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        PaymentMethodType: 'card',
-        currnecy: 'usd'
-      })
-    })
-    
-    Alert.alert('Responded')
-    const {clientSecret} = await response.json()
-
-    const {error, paymentIntent} = await confirmPayment(clientSecret, {
-      type: 'Card',
-      billingDetails: {name}
-    })
-
-    if(error) {
-      Alert.alert("Error Code: ${error.code} ", error.message)
-    }else if (paymentIntent) {
-      Alert.alert("Success", 'Payment sucessful: ${paymentIntent.id}')
-    }
+console.log("Document written with ID: ", docRef.id);
 
   }
 
-  const paymentIntent = async () => {
+  const interestedInEvent = async () => { 
+    // Add a new document with a generated id.
+  const docRef = await addDoc(collection(db, "Users Interested Events"), {
+  username: "Jeremy",
+  event: userEvent
+});
 
-  const {paymentIntent} = await stripe.paymentIntents.create({
-    amount: 500,
-    currency: 'gbp',
-    payment_method: 'pm_card_visa',
-  });
-}
+console.log("Document written with ID: ", docRef.id);
 
-    return (
+  }
+
+
+  const renderItem = ({ item }) => {
+    return(
+      <View style = {styles.eventsBackground}>
+        <View style = {styles.eventsProfilePost}>
+        <Image style = {styles.eventsProfilePicture} source = {require('../assets/ProfilePicture/profilePic.png')}/>
+          <Text style = {styles. eventsUserName}>{item.username}</Text>
+        </View>
+      <Image style = {styles.carPics} source = {require('../assets/Cars/FordMustang.jpg')}/>
+        <Image>{item.url}</Image>
+        <Text>{item.eventPic}</Text>
+
       
-      <StripeProvider  publishableKey={publishableKey}>
-        <View style= {styles.container}>
 
-          <View>
-          <Text>Credit Card</Text>
-          <TextInput style = {styles.userName}
-          onChangeText={setName}>Insert First and Last Name</TextInput>
-          </View>
-
-          <CardField
-          placeholder={{
-            nummber: 'Insert Number 1234'
-          }} 
-          style = {styles.cardField} 
-          />
-
-            <TouchableHighlight
-            onPress={payment} disabled = {loading}>
-              <View>
-                <Text>Pay Now</Text>
-              </View>
-            </TouchableHighlight>
+        <View  style = {styles.eventRender}>
+        <Text style = {styles.eventText}>{item.businessName}</Text>
         </View>
 
-        <View>
-
+        <View style = {styles.eventRender}>
+          <Text style = {styles.eventText}>{item.address}</Text>
         </View>
-         
-          
-
-        <View >
-            <TouchableHighlight
-            onPress={pay}>
-              <View>
-                <Text>Pay</Text>
-              </View>
-            </TouchableHighlight>
-        </View>
-      </StripeProvider>
        
-      )
+        <View style = {styles.eventRender}>
+          <Text style = {styles.eventText}>{item.link}</Text>
+        </View>
+
+        <View style = {styles.eventRender}>
+          <Text style = {styles.eventText}>{item.email}</Text>
+        </View>
+
+        <View style = {styles.eventRender}>
+          <Text style = {styles.eventText}>{item.phoneNumber}</Text>
+        </View>
+
+        <TouchableHighlight onPress={() => 
+          navigation.navigate("Products", {
+            address: item.address,
+            businessName: item.businessName,
+            email: item.email,
+            link: item.link,
+            phoneNumber: item.phoneNumber,
+            state: state,
+            city: city
+          })
+          }>
+                  <View style={styles.goingButton}>
+                    <Text style={styles.comment}>View Products</Text>
+                  </View>
+                </TouchableHighlight>
+      </View>
+    )
+  }
+ 
+  
+    const [modalVisible, setModalVisible] = useState(false);
+  
+    const onShare = async (item) => {
+      try {
+        const result = await Share.share({
+          message:
+            'Check out this cool event!',
+        });
+        if (result.action === Share.sharedAction) {
+          if (result.activityType) {
+            // shared with activity type of result.activityType
+          } else {
+            // shared
+          }
+        } else if (result.action === Share.dismissedAction) {
+          // dismissed
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+    
+    return(
+      <View  style = {styles.container} >
+
+                <Image style = {styles.profileCar} source = {require('../assets/CompanyLogo/TXStockRally.jpg')}/>
+      
+          <Text style = {styles.eventName}>Local Events</Text>
+
+            <View style = {styles.selection}>
+            <TextInput style = {styles.selectionInput}
+              onChangeText= {setState}>State</TextInput>
+              <TextInput style = {styles.selectionInput}
+                onChangeText= {setCity}>City</TextInput>
+                <Button
+            title='Call'
+            onPress={PullLocations}></Button>
+            </View>
+          
+              <Text style = {styles.locationName}>{city}{state}</Text>
+          
+            <FlatList style = {{ width: window, height: '100%'}}
+              data = {events}
+              renderItem = {renderItem}
+              keyExtractor = {(idx) => idx.description}
+              />
+      </View>
+    );
     
   }
 
-  export default Services;
+  export default Events;
 
   const styles = StyleSheet.create({
     container: {
@@ -239,37 +184,74 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
       alignItems: 'center',
       justifyContent: 'center',
     },
-    cardField: {
-        width: '100%',
-        height: 50,
-        marginTop: 20
-    },
-    userName: {
-      backgroundColor: 'gray',
-      color: 'black'
-    },
     headerView: { 
-     backgroundColor: '#C4C4C4'
-    },
-    pagerView: {
       flex: 1,
-     
+      backgroundColor: '#C4C4C4',
+     },
+    scroller: {
+      backgroundColor: 'white'
     },
+    selection:{
+      flexDirection: 'row',
+      backgroundColor: 'gray',
+    },
+    selectionInput:{
+      width: 100,
+      marginRight: 15
+    },
+    comment: {
+        paddingLeft: 150,
+        color: '#000000'
+    },
+    goingButton: {
+      backgroundColor: '#D8232F',
+      height: 30,
+      borderRadius: 10,
+    },
+    interestedButton: {
+      backgroundColor: '#FFFF00',
+      height: 30,
+      borderRadius: 10,
+    },
+    shareButton: {
+      backgroundColor: '#00FF00',
+      height: 30,
+      borderRadius: 10
+    },
+    buttonText: {
+      color: '#000000'
+    },
+    userInfo: {
+      marginLeft: 100,
+  },
+  eventDetails: {
+    flex: 1
+  },
+  events: {
+    flex: 1
+  },
+  eventAppearance: {
+    flexDirection: 'row'
+  },
     headBanner: {
       flex: 1,
       width: 400,
       backgroundColor: '#222222',
     },
     headBannerEvents: {
-      flex: .3,
-      width: 400,
+      flex: .15,
+      width: '100%',
       backgroundColor: '#222222',
     },
     eventBanner: {
-      flex: .2,
+      flex: 1,
+      marginBottom: 100,
       width: 400,
-      backgroundColor: '#C4C4C4',
       flexDirection: 'row'
+    },
+    Logo: {
+      width: 400,
+      height: 100,
     },
     companyName: {
       color: 'white',
@@ -277,8 +259,7 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
       fontSize: 35
     },
     companyNamePlacement: {
-      paddingLeft: 60,
-      paddingTop: 15
+      paddingTop: 50
     },
     localEvents: {
       color: 'white',
@@ -292,6 +273,10 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
     },
     cityView: {
       flexDirection: 'row'
+    },
+    locationName: {
+      fontWeight: "bold",
+      fontSize: 20,
     },
     eventText: {
       fontWeight: "bold",
@@ -312,15 +297,11 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
   
     },
     profileCar: {
-      height: 200,
-      width: 400
-    },
-    profileImage: {
-      height: 50,
+      height: 150,
       width: 400
     },
     profilePictureView: {
-      flex: .8,
+      flex: 1,
       width: 400,
       backgroundColor: '#C4C4C4'
   
@@ -328,8 +309,7 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
     profilePicture: {
       height: 100,
       width: 100,
-      borderRadius: 100/2,
-      marginLeft: 150
+      borderRadius: 100/2
     },
     profileNamePictureView:{
         marginLeft: 150
@@ -354,7 +334,10 @@ const allowedCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
       flex: 1.4
     },
     eventDetails: {
-      height: 100
+  
+    },
+    eventRender: {
+      flexDirection: 'row'
     },
     carLoad: {
       backgroundColor: '#C4C4C4'

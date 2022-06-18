@@ -12,18 +12,16 @@ import { db, auth } from "../firebase";
 import { query, where, QueryDocumentSnapshot, QuerySnapshot, onSnapshot, setDoc, doc, collection, addDoc, serverTimestamp, getDocs} from "firebase/firestore";
 import { async } from '@firebase/util';
 
-const Comments = ({navigation, route}) => {
+const Products = ({navigation, route}) => {
 
   const window = Dimensions.get('screen').width;
   const screen = Dimensions.get('screen').height;
 
-  const {eventId, eventName, eventDate, state, city} = route.params;
-
-  console.log(eventId, eventName, eventDate);
+  const {address, businessName, email, link, phoneNumber, state, city} = route.params;
 
   const [dimensions, setDimensions] = useState({window, screen});
 
-    const[userComments, setComments] = React.useState("Comment");
+    const[products, setProducts] = React.useState("Products");
     const [userEmail, setEmail] = useState([]);
 
     const [userReplies, setReplies] = useState([]);
@@ -44,19 +42,18 @@ const Comments = ({navigation, route}) => {
 
   }
 
-  const PullUserComments= async () => {
-    console.log("Location for data", state, city );
-    const myDocLocation = collection(db, `Locations/States/${state}/${city}/Events/${eventId}/Comments`)
+  const PullProducts= async () => {
+    const myDocLocation = collection(db, `Locations/States/${state}/${city}/Business/8kU19Myvc0DdTNpx2LJn`)
     const snapShotLocation = await getDocs(myDocLocation);
     const snapListLocation = snapShotLocation.docs.map(doc => doc.data());
-    setComments(snapListLocation)
+    setProducts(snapListLocation)
     //console.log(snapListLocation);
    // console.log("Location Events", events)
   }
 
     //Call when component is rendered
     useEffect(() => {
-      PullUserComments();
+      PullProducts();
     }, []);
 
 
@@ -91,20 +88,22 @@ const Comments = ({navigation, route}) => {
     return(
       <View  style = {styles.container}  >
           <View style = {styles.topComment}>
-              <Text style = {styles.comment}>Comments</Text>
+              <Text style = {styles.comment}>Prodcuts</Text>
           </View>
 
           <View style = {styles.passedInfo}>
-              <Text style = {styles.passedInfoLook}>eventId: {JSON.stringify(eventId)}</Text>
-              <Text style = {styles.passedInfoLook}>eventName: {JSON.stringify(eventName)}</Text>
-              <Text style = {styles.passedInfoLook}>eventDate: {JSON.stringify(eventDate)}</Text>
+              <Text style = {styles.passedInfoLook}>businessName: {JSON.stringify(businessName)}</Text>
+              <Text style = {styles.passedInfoLook}>address: {JSON.stringify(address)}</Text>
+              <Text style = {styles.passedInfoLook}>phoneNumber: {JSON.stringify(phoneNumber)}</Text>
+              <Text style = {styles.passedInfoLook}>link: {JSON.stringify(link)}</Text>
+              <Text style = {styles.passedInfoLook}>email: {JSON.stringify(email)}</Text>
           </View>
 
 
           <View style = {styles.commentSection}>
-            <Text>Comments</Text>
+            <Text>Products</Text>
                   <FlatList style = {{ width: window, height: '100%'}}
-                        data = {userComments}
+                        data = {products}
                         renderItem = {renderItem}
                         keyExtractor = {(idx) => idx}
                       />
@@ -116,7 +115,7 @@ const Comments = ({navigation, route}) => {
     );
   }
 
-  export default Comments;
+  export default Products;
 
   const styles = StyleSheet.create({
     container: {
